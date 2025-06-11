@@ -338,7 +338,8 @@ export default function PlayerDetailSearchContent() {
     const positions = ["GK", "LB", "CB", "RB", "LWB", "RWB", "DM", "LM", "CM", "RM", "LAM", "CAM", "RAM", "ST"]
     const selected = new Set<string>()
     positions.forEach((pos) => {
-      if (params[pos] && Number.parseInt(params[pos]) >= 10) {
+      if (params[pos] && Number.parseInt(params[pos]) >= 15) {
+        // 10 → 15로 변경
         selected.add(pos)
       }
     })
@@ -502,7 +503,7 @@ export default function PlayerDetailSearchContent() {
       handleConditionChange(position as keyof SearchCondition, undefined)
     } else {
       newSelected.add(position)
-      handleConditionChange(position as keyof SearchCondition, 10)
+      handleConditionChange(position as keyof SearchCondition, 15) // 10 → 15로 변경
     }
     setSelectedPositions(newSelected)
   }
@@ -897,7 +898,7 @@ export default function PlayerDetailSearchContent() {
                 >
                   <div className="mb-4">
                     <h3 className="text-xs font-medium text-gray-700 mb-2">
-                      Click on positions to set minimum rating to 10:
+                      Click on positions to set minimum rating to 15:
                     </h3>
                     <div className="flex justify-center items-center">
                       <div
@@ -946,10 +947,7 @@ export default function PlayerDetailSearchContent() {
                     </div>
                     <div className="mt-2 text-center text-xs text-slate-500">
                       <span className="inline-block px-1 mx-1">
-                        <span className="inline-block w-2 h-2 bg-gray-500 rounded-sm mr-1"></span> Default
-                      </span>
-                      <span className="inline-block px-1 mx-1">
-                        <span className="inline-block w-2 h-2 bg-emerald-500 rounded-sm mr-1"></span> Selected (Min 10)
+                        <span className="inline-block w-2 h-2 bg-emerald-500 rounded-sm mr-1"></span> Selected (Min 15)
                       </span>
                     </div>
                   </div>
