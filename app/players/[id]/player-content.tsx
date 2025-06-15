@@ -293,7 +293,9 @@ export default function PlayerDetailContent() {
       {/* Hero Section */}
       <section className="hero-gradient text-white py-6">
         <div className="w-full max-w-7xl mx-auto px-2">
-          <h1 className="text-2xl font-bold mb-2">{player.playerDetailsDto?.name || "Player Profile"}</h1>
+          <h1 className="text-2xl font-bold mb-2">
+            {(hasFMData ? player.fmPlayerDetailsDto?.name : player.playerDetailsDto?.name) || "Player Profile"}
+          </h1>
           <div className="flex items-center gap-2">
             {player.playerDetailsDto?.teamLogoUrl && (
               <ImageWithFallback
@@ -302,7 +304,7 @@ export default function PlayerDetailContent() {
                 className="w-5 h-5 object-contain"
               />
             )}
-            <p className="text-base text-slate-300">{player.playerDetailsDto?.teamName || "Team"}</p>
+            <p className="text-base text-slate-300">{player.playerDetailsDto?.teamName || "FA"}</p>
           </div>
         </div>
       </section>
@@ -327,7 +329,7 @@ export default function PlayerDetailContent() {
                 <div className="sm:flex justify-between items-start mb-2">
                   <div>
                     <h2 className="text-xl font-bold mb-0.5 text-slate-800">
-                      {player.playerDetailsDto?.name || "Player Name"}
+                      {(hasFMData ? player.fmPlayerDetailsDto?.name : player.playerDetailsDto?.name) || "Player Name"}
                     </h2>
                   </div>
                   <div className="mt-1 sm:mt-0">
@@ -382,7 +384,7 @@ export default function PlayerDetailContent() {
                             className="w-4 h-4 object-contain"
                           />
                         )}
-                        <span>{player.playerDetailsDto?.teamName || "Unknown"}</span>
+                        <span>{player.playerDetailsDto?.teamName || "FA"}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1 text-slate-700">
@@ -817,6 +819,7 @@ export default function PlayerDetailContent() {
               </div>
             )}
 
+
             {/* FM 데이터가 없을 때 메시지 표시 */}
             {!hasFMData && (
               <div className="bg-slate-50 rounded-xl p-6 text-center">
@@ -832,7 +835,6 @@ export default function PlayerDetailContent() {
           </div>
         </div>
       </main>
-
       <Footer />
     </div>
   )
