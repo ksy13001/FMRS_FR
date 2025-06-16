@@ -7,7 +7,6 @@ import {
   Calendar,
   Ruler,
   Weight,
-  Users,
   Flag,
   Star,
   Activity,
@@ -302,7 +301,11 @@ export default function PlayerDetailContent() {
                 className="w-5 h-5 object-contain"
               />
             )}
-            <p className="text-base text-slate-300">{player.playerDetailsDto?.teamName || "Team"}</p>
+            <p
+              className={`text-base ${!player.playerDetailsDto?.teamName ? "text-orange-300 font-semibold" : "text-slate-300"}`}
+            >
+              {player.playerDetailsDto?.teamName || "FA (Free Agent)"}
+            </p>
           </div>
         </div>
       </section>
@@ -327,7 +330,7 @@ export default function PlayerDetailContent() {
                 <div className="sm:flex justify-between items-start mb-2">
                   <div>
                     <h2 className="text-xl font-bold mb-0.5 text-slate-800">
-                      {player.playerDetailsDto?.name || "Player Name"}
+                      {(hasFMData ? player.fmPlayerDetailsDto?.name : player.playerDetailsDto?.name) || "Player Name"}
                     </h2>
                   </div>
                   <div className="mt-1 sm:mt-0">
@@ -372,17 +375,18 @@ export default function PlayerDetailContent() {
                   </div>
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-1 text-slate-700">
-                      <Users className="text-emerald-500" size={12} />
                       <span>Team: </span>
                       <div className="flex items-center gap-1">
-                        {player.playerDetailsDto?.teamLogoUrl && (
+                        {player.playerDetailsDto?.teamName && player.playerDetailsDto?.teamLogoUrl && (
                           <ImageWithFallback
                             src={player.playerDetailsDto.teamLogoUrl || "/placeholder.svg"}
                             alt="Team Logo"
                             className="w-4 h-4 object-contain"
                           />
                         )}
-                        <span>{player.playerDetailsDto?.teamName || "Unknown"}</span>
+                        <span className={!player.playerDetailsDto?.teamName ? "text-orange-600 font-semibold" : ""}>
+                          {player.playerDetailsDto?.teamName || "FA (Free Agent)"}
+                        </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1 text-slate-700">
