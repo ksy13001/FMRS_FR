@@ -1064,7 +1064,7 @@ export default function PlayerDetailSearchContent() {
                                       className="w-4 h-4 mr-1"
                                     />
                                   )}
-                                  <span className="text-slate-600">{player.teamName}</span>
+                                  <span className="text-slate-600">{player.teamName || "FA"}</span>
                                 </div>
                                 <div className="flex items-center gap-1 mt-1">
                                   {player.age && player.age > 0 && (

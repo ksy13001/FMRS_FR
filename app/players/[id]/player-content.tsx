@@ -293,9 +293,7 @@ export default function PlayerDetailContent() {
       {/* Hero Section */}
       <section className="hero-gradient text-white py-6">
         <div className="w-full max-w-7xl mx-auto px-2">
-          <h1 className="text-2xl font-bold mb-2">
-            {(hasFMData ? player.fmPlayerDetailsDto?.name : player.playerDetailsDto?.name) || "Player Profile"}
-          </h1>
+          <h1 className="text-2xl font-bold mb-2">{player.playerDetailsDto?.name || "Player Profile"}</h1>
           <div className="flex items-center gap-2">
             {player.playerDetailsDto?.teamLogoUrl && (
               <ImageWithFallback
@@ -329,7 +327,7 @@ export default function PlayerDetailContent() {
                 <div className="sm:flex justify-between items-start mb-2">
                   <div>
                     <h2 className="text-xl font-bold mb-0.5 text-slate-800">
-                      {(hasFMData ? player.fmPlayerDetailsDto?.name : player.playerDetailsDto?.name) || "Player Name"}
+                      {player.playerDetailsDto?.name || "Player Name"}
                     </h2>
                   </div>
                   <div className="mt-1 sm:mt-0">
@@ -488,98 +486,98 @@ export default function PlayerDetailContent() {
                       {[
                         {
                           key: "goalkeeper",
-                          value: player.fmPlayerDetailsDto?.position?.goalkeeper || 0,
+                          value: player.fmPlayerDetailsDto.position.goalkeeper,
                           left: "5%",
                           top: "50%",
                           label: "GK",
                         },
                         {
                           key: "defenderLeft",
-                          value: player.fmPlayerDetailsDto?.position?.defenderLeft || 0,
+                          value: player.fmPlayerDetailsDto.position.defenderLeft,
                           left: "20%",
                           top: "20%",
                           label: "DL",
                         },
                         {
                           key: "wingBackLeft",
-                          value: player.fmPlayerDetailsDto?.position?.wingBackLeft || 0,
+                          value: player.fmPlayerDetailsDto.position.wingBackLeft,
                           left: "35%",
                           top: "20%",
                           label: "WL",
                         },
                         {
                           key: "midfielderLeft",
-                          value: player.fmPlayerDetailsDto?.position?.midfielderLeft || 0,
+                          value: player.fmPlayerDetailsDto.position.midfielderLeft,
                           left: "50%",
                           top: "20%",
                           label: "ML",
                         },
                         {
                           key: "attackingMidLeft",
-                          value: player.fmPlayerDetailsDto?.position?.attackingMidLeft || 0,
+                          value: player.fmPlayerDetailsDto.position.attackingMidLeft,
                           left: "65%",
                           top: "20%",
                           label: "AL",
                         },
                         {
                           key: "defenderCentral",
-                          value: player.fmPlayerDetailsDto?.position?.defenderCentral || 0,
+                          value: player.fmPlayerDetailsDto.position.defenderCentral,
                           left: "20%",
                           top: "50%",
                           label: "DC",
                         },
                         {
                           key: "defensiveMidfielder",
-                          value: player.fmPlayerDetailsDto?.position?.defensiveMidfielder || 0,
+                          value: player.fmPlayerDetailsDto.position.defensiveMidfielder,
                           left: "35%",
                           top: "50%",
                           label: "DM",
                         },
                         {
                           key: "midfielderCentral",
-                          value: player.fmPlayerDetailsDto?.position?.midfielderCentral || 0,
+                          value: player.fmPlayerDetailsDto.position.midfielderCentral,
                           left: "50%",
                           top: "50%",
                           label: "CM",
                         },
                         {
                           key: "attackingMidCentral",
-                          value: player.fmPlayerDetailsDto?.position?.attackingMidCentral || 0,
+                          value: player.fmPlayerDetailsDto.position.attackingMidCentral,
                           left: "65%",
                           top: "50%",
                           label: "AM",
                         },
                         {
                           key: "striker",
-                          value: player.fmPlayerDetailsDto?.position?.striker || 0,
+                          value: player.fmPlayerDetailsDto.position.striker,
                           left: "80%",
                           top: "50%",
                           label: "ST",
                         },
                         {
                           key: "defenderRight",
-                          value: player.fmPlayerDetailsDto?.position?.defenderRight || 0,
+                          value: player.fmPlayerDetailsDto.position.defenderRight,
                           left: "20%",
                           top: "80%",
                           label: "DR",
                         },
                         {
                           key: "wingBackRight",
-                          value: player.fmPlayerDetailsDto?.position?.wingBackRight || 0,
+                          value: player.fmPlayerDetailsDto.position.wingBackRight,
                           left: "35%",
                           top: "80%",
                           label: "WR",
                         },
                         {
                           key: "midfielderRight",
-                          value: player.fmPlayerDetailsDto?.position?.midfielderRight || 0,
+                          value: player.fmPlayerDetailsDto.position.midfielderRight,
                           left: "50%",
                           top: "80%",
                           label: "MR",
                         },
                         {
                           key: "attackingMidRight",
-                          value: player.fmPlayerDetailsDto?.position?.attackingMidRight || 0,
+                          value: player.fmPlayerDetailsDto.position.attackingMidRight,
                           left: "65%",
                           top: "80%",
                           label: "AR",
@@ -621,107 +619,86 @@ export default function PlayerDetailContent() {
                       <>
                         <AttributeItem
                           name="Aerial Ability"
-                          value={player.fmPlayerDetailsDto?.goalKeeperAttributes?.aerialAbility || 0}
+                          value={player.fmPlayerDetailsDto.goalKeeperAttributes.aerialAbility}
                         />
                         <AttributeItem
                           name="Command of Area"
-                          value={player.fmPlayerDetailsDto?.goalKeeperAttributes?.commandOfArea || 0}
+                          value={player.fmPlayerDetailsDto.goalKeeperAttributes.commandOfArea}
                         />
                         <AttributeItem
                           name="Communication"
-                          value={player.fmPlayerDetailsDto?.goalKeeperAttributes?.communication || 0}
+                          value={player.fmPlayerDetailsDto.goalKeeperAttributes.communication}
                         />
                         <AttributeItem
                           name="Eccentricity"
-                          value={player.fmPlayerDetailsDto?.goalKeeperAttributes?.eccentricity || 0}
+                          value={player.fmPlayerDetailsDto.goalKeeperAttributes.eccentricity}
                         />
                         <AttributeItem
                           name="Handling"
-                          value={player.fmPlayerDetailsDto?.goalKeeperAttributes?.handling || 0}
+                          value={player.fmPlayerDetailsDto.goalKeeperAttributes.handling}
                         />
-                        <AttributeItem
-                          name="Kicking"
-                          value={player.fmPlayerDetailsDto?.goalKeeperAttributes?.kicking || 0}
-                        />
+                        <AttributeItem name="Kicking" value={player.fmPlayerDetailsDto.goalKeeperAttributes.kicking} />
                         <AttributeItem
                           name="One on Ones"
-                          value={player.fmPlayerDetailsDto?.goalKeeperAttributes?.oneOnOnes || 0}
+                          value={player.fmPlayerDetailsDto.goalKeeperAttributes.oneOnOnes}
                         />
                         <AttributeItem
                           name="Reflexes"
-                          value={player.fmPlayerDetailsDto?.goalKeeperAttributes?.reflexes || 0}
+                          value={player.fmPlayerDetailsDto.goalKeeperAttributes.reflexes}
                         />
                         <AttributeItem
                           name="Rushing Out"
-                          value={player.fmPlayerDetailsDto?.goalKeeperAttributes?.rushingOut || 0}
+                          value={player.fmPlayerDetailsDto.goalKeeperAttributes.rushingOut}
                         />
                         <AttributeItem
                           name="Tendency to Punch"
-                          value={player.fmPlayerDetailsDto?.goalKeeperAttributes?.tendencyToPunch || 0}
+                          value={player.fmPlayerDetailsDto.goalKeeperAttributes.tendencyToPunch}
                         />
                         <AttributeItem
                           name="Throwing"
-                          value={player.fmPlayerDetailsDto?.goalKeeperAttributes?.throwing || 0}
+                          value={player.fmPlayerDetailsDto.goalKeeperAttributes.throwing}
                         />
                       </>
                     ) : (
                       // Technical Attributes
                       <>
-                        <AttributeItem
-                          name="Corners"
-                          value={player.fmPlayerDetailsDto?.technicalAttributes?.corners || 0}
-                        />
-                        <AttributeItem
-                          name="Crossing"
-                          value={player.fmPlayerDetailsDto?.technicalAttributes?.crossing || 0}
-                        />
+                        <AttributeItem name="Corners" value={player.fmPlayerDetailsDto.technicalAttributes.corners} />
+                        <AttributeItem name="Crossing" value={player.fmPlayerDetailsDto.technicalAttributes.crossing} />
                         <AttributeItem
                           name="Dribbling"
-                          value={player.fmPlayerDetailsDto?.technicalAttributes?.dribbling || 0}
+                          value={player.fmPlayerDetailsDto.technicalAttributes.dribbling}
                         />
                         <AttributeItem
                           name="Finishing"
-                          value={player.fmPlayerDetailsDto?.technicalAttributes?.finishing || 0}
+                          value={player.fmPlayerDetailsDto.technicalAttributes.finishing}
                         />
                         <AttributeItem
                           name="First Touch"
-                          value={player.fmPlayerDetailsDto?.technicalAttributes?.firstTouch || 0}
+                          value={player.fmPlayerDetailsDto.technicalAttributes.firstTouch}
                         />
                         <AttributeItem
                           name="Free Kick Taking"
-                          value={player.fmPlayerDetailsDto?.technicalAttributes?.freeKicks || 0}
+                          value={player.fmPlayerDetailsDto.technicalAttributes.freeKicks}
                         />
-                        <AttributeItem
-                          name="Heading"
-                          value={player.fmPlayerDetailsDto?.technicalAttributes?.heading || 0}
-                        />
+                        <AttributeItem name="Heading" value={player.fmPlayerDetailsDto.technicalAttributes.heading} />
                         <AttributeItem
                           name="Long Shots"
-                          value={player.fmPlayerDetailsDto?.technicalAttributes?.longShots || 0}
+                          value={player.fmPlayerDetailsDto.technicalAttributes.longShots}
                         />
                         <AttributeItem
                           name="Long Throws"
-                          value={player.fmPlayerDetailsDto?.technicalAttributes?.longThrows || 0}
+                          value={player.fmPlayerDetailsDto.technicalAttributes.longThrows}
                         />
-                        <AttributeItem
-                          name="Marking"
-                          value={player.fmPlayerDetailsDto?.technicalAttributes?.marking || 0}
-                        />
-                        <AttributeItem
-                          name="Passing"
-                          value={player.fmPlayerDetailsDto?.technicalAttributes?.passing || 0}
-                        />
+                        <AttributeItem name="Marking" value={player.fmPlayerDetailsDto.technicalAttributes.marking} />
+                        <AttributeItem name="Passing" value={player.fmPlayerDetailsDto.technicalAttributes.passing} />
                         <AttributeItem
                           name="Penalty Taking"
-                          value={player.fmPlayerDetailsDto?.technicalAttributes?.penaltyTaking || 0}
+                          value={player.fmPlayerDetailsDto.technicalAttributes.penaltyTaking}
                         />
-                        <AttributeItem
-                          name="Tackling"
-                          value={player.fmPlayerDetailsDto?.technicalAttributes?.tackling || 0}
-                        />
+                        <AttributeItem name="Tackling" value={player.fmPlayerDetailsDto.technicalAttributes.tackling} />
                         <AttributeItem
                           name="Technique"
-                          value={player.fmPlayerDetailsDto?.technicalAttributes?.technique || 0}
+                          value={player.fmPlayerDetailsDto.technicalAttributes.technique}
                         />
                       </>
                     )}
@@ -735,50 +712,29 @@ export default function PlayerDetailContent() {
                     Mental
                   </h3>
                   <div className="space-y-0.5">
-                    <AttributeItem
-                      name="Aggression"
-                      value={player.fmPlayerDetailsDto?.mentalAttributes?.aggression || 0}
-                    />
+                    <AttributeItem name="Aggression" value={player.fmPlayerDetailsDto.mentalAttributes.aggression} />
                     <AttributeItem
                       name="Anticipation"
-                      value={player.fmPlayerDetailsDto?.mentalAttributes?.anticipation || 0}
+                      value={player.fmPlayerDetailsDto.mentalAttributes.anticipation}
                     />
-                    <AttributeItem name="Bravery" value={player.fmPlayerDetailsDto?.mentalAttributes?.bravery || 0} />
-                    <AttributeItem
-                      name="Composure"
-                      value={player.fmPlayerDetailsDto?.mentalAttributes?.composure || 0}
-                    />
+                    <AttributeItem name="Bravery" value={player.fmPlayerDetailsDto.mentalAttributes.bravery} />
+                    <AttributeItem name="Composure" value={player.fmPlayerDetailsDto.mentalAttributes.composure} />
                     <AttributeItem
                       name="Concentration"
-                      value={player.fmPlayerDetailsDto?.mentalAttributes?.concentration || 0}
+                      value={player.fmPlayerDetailsDto.mentalAttributes.concentration}
                     />
-                    <AttributeItem
-                      name="Decisions"
-                      value={player.fmPlayerDetailsDto?.mentalAttributes?.decisions || 0}
-                    />
+                    <AttributeItem name="Decisions" value={player.fmPlayerDetailsDto.mentalAttributes.decisions} />
                     <AttributeItem
                       name="Determination"
-                      value={player.fmPlayerDetailsDto?.mentalAttributes?.determination || 0}
+                      value={player.fmPlayerDetailsDto.mentalAttributes.determination}
                     />
-                    <AttributeItem name="Flair" value={player.fmPlayerDetailsDto?.mentalAttributes?.flair || 0} />
-                    <AttributeItem
-                      name="Leadership"
-                      value={player.fmPlayerDetailsDto?.mentalAttributes?.leadership || 0}
-                    />
-                    <AttributeItem
-                      name="Off The Ball"
-                      value={player.fmPlayerDetailsDto?.mentalAttributes?.offTheBall || 0}
-                    />
-                    <AttributeItem
-                      name="Positioning"
-                      value={player.fmPlayerDetailsDto?.mentalAttributes?.positioning || 0}
-                    />
-                    <AttributeItem name="Teamwork" value={player.fmPlayerDetailsDto?.mentalAttributes?.teamwork || 0} />
-                    <AttributeItem name="Vision" value={player.fmPlayerDetailsDto?.mentalAttributes?.vision || 0} />
-                    <AttributeItem
-                      name="Work Rate"
-                      value={player.fmPlayerDetailsDto?.mentalAttributes?.workRate || 0}
-                    />
+                    <AttributeItem name="Flair" value={player.fmPlayerDetailsDto.mentalAttributes.flair} />
+                    <AttributeItem name="Leadership" value={player.fmPlayerDetailsDto.mentalAttributes.leadership} />
+                    <AttributeItem name="Off The Ball" value={player.fmPlayerDetailsDto.mentalAttributes.offTheBall} />
+                    <AttributeItem name="Positioning" value={player.fmPlayerDetailsDto.mentalAttributes.positioning} />
+                    <AttributeItem name="Teamwork" value={player.fmPlayerDetailsDto.mentalAttributes.teamwork} />
+                    <AttributeItem name="Vision" value={player.fmPlayerDetailsDto.mentalAttributes.vision} />
+                    <AttributeItem name="Work Rate" value={player.fmPlayerDetailsDto.mentalAttributes.workRate} />
                   </div>
                 </div>
 
@@ -791,24 +747,21 @@ export default function PlayerDetailContent() {
                   <div className="space-y-0.5">
                     <AttributeItem
                       name="Acceleration"
-                      value={player.fmPlayerDetailsDto?.physicalAttributes?.acceleration || 0}
+                      value={player.fmPlayerDetailsDto.physicalAttributes.acceleration}
                     />
-                    <AttributeItem name="Agility" value={player.fmPlayerDetailsDto?.physicalAttributes?.agility || 0} />
-                    <AttributeItem name="Balance" value={player.fmPlayerDetailsDto?.physicalAttributes?.balance || 0} />
+                    <AttributeItem name="Agility" value={player.fmPlayerDetailsDto.physicalAttributes.agility} />
+                    <AttributeItem name="Balance" value={player.fmPlayerDetailsDto.physicalAttributes.balance} />
                     <AttributeItem
                       name="Jumping Reach"
-                      value={player.fmPlayerDetailsDto?.physicalAttributes?.jumpingReach || 0}
+                      value={player.fmPlayerDetailsDto.physicalAttributes.jumpingReach}
                     />
                     <AttributeItem
                       name="Natural Fitness"
-                      value={player.fmPlayerDetailsDto?.physicalAttributes?.naturalFitness || 0}
+                      value={player.fmPlayerDetailsDto.physicalAttributes.naturalFitness}
                     />
-                    <AttributeItem name="Pace" value={player.fmPlayerDetailsDto?.physicalAttributes?.pace || 0} />
-                    <AttributeItem name="Stamina" value={player.fmPlayerDetailsDto?.physicalAttributes?.stamina || 0} />
-                    <AttributeItem
-                      name="Strength"
-                      value={player.fmPlayerDetailsDto?.physicalAttributes?.strength || 0}
-                    />
+                    <AttributeItem name="Pace" value={player.fmPlayerDetailsDto.physicalAttributes.pace} />
+                    <AttributeItem name="Stamina" value={player.fmPlayerDetailsDto.physicalAttributes.stamina} />
+                    <AttributeItem name="Strength" value={player.fmPlayerDetailsDto.physicalAttributes.strength} />
                   </div>
                 </div>
 
@@ -821,35 +774,26 @@ export default function PlayerDetailContent() {
                   <div className="space-y-0.5">
                     <AttributeItem
                       name="Adaptability"
-                      value={player.fmPlayerDetailsDto?.personalityAttributes?.adaptability || 0}
+                      value={player.fmPlayerDetailsDto.personalityAttributes.adaptability}
                     />
-                    <AttributeItem
-                      name="Ambition"
-                      value={player.fmPlayerDetailsDto?.personalityAttributes?.ambition || 0}
-                    />
-                    <AttributeItem
-                      name="Loyalty"
-                      value={player.fmPlayerDetailsDto?.personalityAttributes?.loyalty || 0}
-                    />
-                    <AttributeItem
-                      name="Pressure"
-                      value={player.fmPlayerDetailsDto?.personalityAttributes?.pressure || 0}
-                    />
+                    <AttributeItem name="Ambition" value={player.fmPlayerDetailsDto.personalityAttributes.ambition} />
+                    <AttributeItem name="Loyalty" value={player.fmPlayerDetailsDto.personalityAttributes.loyalty} />
+                    <AttributeItem name="Pressure" value={player.fmPlayerDetailsDto.personalityAttributes.pressure} />
                     <AttributeItem
                       name="Professional"
-                      value={player.fmPlayerDetailsDto?.personalityAttributes?.professional || 0}
+                      value={player.fmPlayerDetailsDto.personalityAttributes.professional}
                     />
                     <AttributeItem
                       name="Sportsmanship"
-                      value={player.fmPlayerDetailsDto?.personalityAttributes?.sportsmanship || 0}
+                      value={player.fmPlayerDetailsDto.personalityAttributes.sportsmanship}
                     />
                     <AttributeItem
                       name="Temperament"
-                      value={player.fmPlayerDetailsDto?.personalityAttributes?.temperament || 0}
+                      value={player.fmPlayerDetailsDto.personalityAttributes.temperament}
                     />
                     <AttributeItem
                       name="Controversy"
-                      value={player.fmPlayerDetailsDto?.personalityAttributes?.controversy || 0}
+                      value={player.fmPlayerDetailsDto.personalityAttributes.controversy}
                     />
                   </div>
                   <h4 className="font-semibold mt-3 mb-1 flex items-center gap-1 text-xs text-slate-700">
@@ -857,26 +801,17 @@ export default function PlayerDetailContent() {
                     Hidden
                   </h4>
                   <div className="space-y-0.5">
-                    <AttributeItem
-                      name="Consistency"
-                      value={player.fmPlayerDetailsDto?.hiddenAttributes?.consistency || 0}
-                    />
-                    <AttributeItem
-                      name="Dirtiness"
-                      value={player.fmPlayerDetailsDto?.hiddenAttributes?.dirtiness || 0}
-                    />
+                    <AttributeItem name="Consistency" value={player.fmPlayerDetailsDto.hiddenAttributes.consistency} />
+                    <AttributeItem name="Dirtiness" value={player.fmPlayerDetailsDto.hiddenAttributes.dirtiness} />
                     <AttributeItem
                       name="Important Matches"
-                      value={player.fmPlayerDetailsDto?.hiddenAttributes?.importantMatches || 0}
+                      value={player.fmPlayerDetailsDto.hiddenAttributes.importantMatches}
                     />
                     <AttributeItem
                       name="Injury Proneness"
-                      value={player.fmPlayerDetailsDto?.hiddenAttributes?.injuryProneness || 0}
+                      value={player.fmPlayerDetailsDto.hiddenAttributes.injuryProneness}
                     />
-                    <AttributeItem
-                      name="Versatility"
-                      value={player.fmPlayerDetailsDto?.hiddenAttributes?.versatility || 0}
-                    />
+                    <AttributeItem name="Versatility" value={player.fmPlayerDetailsDto.hiddenAttributes.versatility} />
                   </div>
                 </div>
               </div>
