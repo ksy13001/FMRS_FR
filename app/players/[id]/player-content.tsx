@@ -882,7 +882,6 @@ export default function PlayerDetailContent() {
               </div>
             )}
 
-
             {/* FM 데이터가 없을 때 메시지 표시 */}
             {!hasFMData && (
               <div className="bg-slate-50 rounded-xl p-6 text-center">
@@ -898,6 +897,7 @@ export default function PlayerDetailContent() {
           </div>
         </div>
       </main>
+
       <Footer />
     </div>
   )
