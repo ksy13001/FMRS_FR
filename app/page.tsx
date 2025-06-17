@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import Link from "next/link"
 import { Search, Filter, Calendar, Star } from "lucide-react"
 import Header from "@/components/layout/header"
@@ -37,24 +37,150 @@ export default function HomePage() {
   const [lastPlayerId, setLastPlayerId] = useState<number | null>(null)
   const [lastMappingStatus, setLastMappingStatus] = useState<string | null>(null)
   const [lastCurrentAbility, setLastCurrentAbility] = useState<number | null>(null)
+  const [lastSearchedQuery, setLastSearchedQuery] = useState("") // 마지막으로 실제 검색한 쿼리
 
   // 검색 컨테이너 참조
   const searchContainerRef = useRef<HTMLDivElement>(null)
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const finalCheckTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Debounced search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchQuery.trim()) {
-        performSearch(searchQuery.trim(), false) // isLoadMore = false for new search
-      } else {
+  const resetState = () => {
+    setCurrentPage(0)
+    setLastPlayerId(null)
+    setLastMappingStatus(null)
+    setLastCurrentAbility(null)
+    setHasMore(false)
+  }
+
+  const performSearch = useCallback(
+    async (query: string, isLoadMore = false) => {
+      if (!query.trim()) return
+
+      // 새로운 검색인 경우 상태 초기화
+      if (!isLoadMore) {
         setSearchResults([])
-        setShowResults(false)
         resetState()
+        setCurrentSearchQuery(query)
+        setLastSearchedQuery(query) // 실제 검색한 쿼리 기록
       }
-    }, 300)
 
-    return () => clearTimeout(timer)
-  }, [searchQuery])
+      if (isLoading) return
+
+      setIsLoading(true)
+      try {
+        // 한번에 10개 결과로 수정
+        const params = new URLSearchParams({
+          page: currentPage.toString(),
+          size: "10",
+        })
+
+        // 커서 파라미터는 currentPage > 0이고 isLoadMore일 때만 추가
+        if (isLoadMore && currentPage > 0) {
+          if (lastPlayerId !== null) {
+            params.append("lastPlayerId", lastPlayerId.toString())
+          }
+          if (lastMappingStatus !== null) {
+            params.append("lastMappingStatus", lastMappingStatus)
+          }
+          if (lastCurrentAbility !== null) {
+            params.append("lastCurrentAbility", lastCurrentAbility.toString())
+          }
+        }
+
+        const response = await fetch(`/api/search/simple-player/${encodeURIComponent(query)}?${params}`)
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const data: SearchResponse = await response.json()
+
+        if (!isLoadMore) {
+          // 새로운 검색: 결과 교체
+          setSearchResults(data.players || [])
+        } else {
+          // 무한 스크롤: 결과 추가 (중복 제거)
+          setSearchResults((prev) => {
+            const existingIds = new Set(prev.map((player) => player.id))
+            const newPlayers = (data.players || []).filter((player) => !existingIds.has(player.id))
+            return [...prev, ...newPlayers]
+          })
+        }
+
+        // 마지막 플레이어 정보 저장
+        if (data.players && data.players.length > 0) {
+          const lastPlayer = data.players[data.players.length - 1]
+          setLastPlayerId(lastPlayer.id)
+          setLastCurrentAbility(lastPlayer.currentAbility || null)
+          setLastMappingStatus(lastPlayer.mappingStatus || null)
+        }
+
+        // hasNext 값 사용
+        setHasMore(data.hasNext || false)
+
+        // 성공적으로 로드했으면 페이지 증가
+        if (isLoadMore) {
+          setCurrentPage((prev) => prev + 1)
+        }
+
+        setShowResults(true)
+      } catch (error) {
+        console.error("Search error:", error)
+        if (!isLoadMore) {
+          setSearchResults([])
+        }
+        setHasMore(false)
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [isLoading, currentPage, lastPlayerId, lastMappingStatus, lastCurrentAbility],
+  )
+
+  // Debounced search with final check
+  useEffect(() => {
+    // 기존 타이머들 클리어
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+    if (finalCheckTimerRef.current) {
+      clearTimeout(finalCheckTimerRef.current)
+    }
+
+    const trimmedQuery = searchQuery.trim()
+
+    if (trimmedQuery && trimmedQuery.length >= 2) {
+      // 일반 debounce 검색
+      debounceTimerRef.current = setTimeout(() => {
+        if (trimmedQuery !== lastSearchedQuery) {
+          performSearch(trimmedQuery, false)
+        }
+      }, 100)
+
+      // 최종 검색어 확인 (더 긴 시간 후)
+      finalCheckTimerRef.current = setTimeout(() => {
+        const currentTrimmedQuery = searchQuery.trim()
+        if (currentTrimmedQuery && currentTrimmedQuery.length >= 2 && currentTrimmedQuery !== lastSearchedQuery) {
+          console.log("Final check: searching for", currentTrimmedQuery)
+          performSearch(currentTrimmedQuery, false)
+        }
+      }, 500) // 500ms 후 최종 확인
+    } else {
+      setSearchResults([])
+      setShowResults(false)
+      resetState()
+      setLastSearchedQuery("")
+    }
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+      if (finalCheckTimerRef.current) {
+        clearTimeout(finalCheckTimerRef.current)
+      }
+    }
+  }, [searchQuery, lastSearchedQuery, performSearch])
 
   // 외부 클릭 감지
   useEffect(() => {
@@ -69,95 +195,6 @@ export default function HomePage() {
       document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [])
-
-  const resetState = () => {
-    setCurrentPage(0)
-    setLastPlayerId(null)
-    setLastMappingStatus(null)
-    setLastCurrentAbility(null)
-    setHasMore(false)
-  }
-
-  const performSearch = async (query: string, isLoadMore = false) => {
-    if (!query.trim()) return
-
-    // 새로운 검색인 경우 상태 초기화
-    if (!isLoadMore) {
-      setSearchResults([])
-      resetState()
-      setCurrentSearchQuery(query)
-    }
-
-    if (isLoading) return
-
-    setIsLoading(true)
-    try {
-      // 한번에 10개 결과로 수정
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        size: "10",
-      })
-
-      // 커서 파라미터는 currentPage > 0이고 isLoadMore일 때만 추가
-      if (isLoadMore && currentPage > 0) {
-        if (lastPlayerId !== null) {
-          params.append("lastPlayerId", lastPlayerId.toString())
-        }
-        if (lastMappingStatus !== null) {
-          params.append("lastMappingStatus", lastMappingStatus)
-        }
-        if (lastCurrentAbility !== null) {
-          params.append("lastCurrentAbility", lastCurrentAbility.toString())
-        }
-      }
-
-      const response = await fetch(`/api/search/simple-player/${encodeURIComponent(query)}?${params}`)
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const data: SearchResponse = await response.json()
-
-      if (!isLoadMore) {
-        // 새로운 검색: 결과 교체
-        setSearchResults(data.players || [])
-      } else {
-        // 무한 스크롤: 결과 추가 (중복 제거)
-        setSearchResults((prev) => {
-          const existingIds = new Set(prev.map((player) => player.id))
-          const newPlayers = (data.players || []).filter((player) => !existingIds.has(player.id))
-          return [...prev, ...newPlayers]
-        })
-      }
-
-      // 마지막 플레이어 정보 저장
-      if (data.players && data.players.length > 0) {
-        const lastPlayer = data.players[data.players.length - 1]
-        setLastPlayerId(lastPlayer.id)
-        setLastCurrentAbility(lastPlayer.currentAbility || null)
-        setLastMappingStatus(lastPlayer.mappingStatus || null)
-      }
-
-      // hasNext 값 사용
-      setHasMore(data.hasNext || false)
-
-      // 성공적으로 로드했으면 페이지 증가
-      if (isLoadMore) {
-        setCurrentPage((prev) => prev + 1)
-      }
-
-      setShowResults(true)
-    } catch (error) {
-      console.error("Search error:", error)
-      if (!isLoadMore) {
-        setSearchResults([])
-      }
-      setHasMore(false)
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const loadMore = () => {
     if (!isLoading && hasMore && currentSearchQuery.trim()) {
@@ -175,6 +212,20 @@ export default function HomePage() {
   const handleInputFocus = () => {
     if (searchQuery.trim() && searchResults.length > 0) {
       setShowResults(true)
+    }
+  }
+
+  const handleEnterSearch = () => {
+    const trimmedQuery = searchQuery.trim()
+    if (trimmedQuery.length >= 2) {
+      // Enter 키 검색 시 모든 타이머 클리어하고 즉시 검색
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+      if (finalCheckTimerRef.current) {
+        clearTimeout(finalCheckTimerRef.current)
+      }
+      performSearch(trimmedQuery, false)
     }
   }
 
@@ -197,13 +248,24 @@ export default function HomePage() {
           <div className="relative" ref={searchContainerRef}>
             <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
+              {isLoading && (
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                </div>
+              )}
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={handleInputFocus}
-                placeholder="Enter player name..."
-                className="w-full pl-12 pr-4 py-4 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-lg"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault()
+                    handleEnterSearch()
+                  }
+                }}
+                placeholder="Enter player name (min 2 characters)..."
+                className={`w-full pl-12 ${isLoading ? "pr-12" : "pr-4"} py-4 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-lg`}
               />
             </div>
 
