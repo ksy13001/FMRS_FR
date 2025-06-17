@@ -41,8 +41,8 @@ export default function HomePage() {
 
   // 검색 컨테이너 참조
   const searchContainerRef = useRef<HTMLDivElement>(null)
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const finalCheckTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const searchTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const lastQueryRef = useRef<string>("")
 
   const resetState = () => {
     setCurrentPage(0)
@@ -55,6 +55,8 @@ export default function HomePage() {
   const performSearch = useCallback(
     async (query: string, isLoadMore = false) => {
       if (!query.trim()) return
+
+      console.log("Performing search for:", query)
 
       // 새로운 검색인 경우 상태 초기화
       if (!isLoadMore) {
@@ -137,34 +139,30 @@ export default function HomePage() {
     [isLoading, currentPage, lastPlayerId, lastMappingStatus, lastCurrentAbility],
   )
 
-  // Debounced search with final check
+  // 검색어 변화 감지 및 검색 실행
   useEffect(() => {
-    // 기존 타이머들 클리어
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current)
-    }
-    if (finalCheckTimerRef.current) {
-      clearTimeout(finalCheckTimerRef.current)
-    }
-
     const trimmedQuery = searchQuery.trim()
 
-    if (trimmedQuery && trimmedQuery.length >= 2) {
-      // 일반 debounce 검색
-      debounceTimerRef.current = setTimeout(() => {
-        if (trimmedQuery !== lastSearchedQuery) {
-          performSearch(trimmedQuery, false)
-        }
-      }, 100)
+    // 현재 쿼리를 ref에 저장
+    lastQueryRef.current = trimmedQuery
 
-      // 최종 검색어 확인 (더 긴 시간 후)
-      finalCheckTimerRef.current = setTimeout(() => {
-        const currentTrimmedQuery = searchQuery.trim()
-        if (currentTrimmedQuery && currentTrimmedQuery.length >= 2 && currentTrimmedQuery !== lastSearchedQuery) {
-          console.log("Final check: searching for", currentTrimmedQuery)
-          performSearch(currentTrimmedQuery, false)
+    // 기존 타이머 클리어
+    if (searchTimerRef.current) {
+      clearTimeout(searchTimerRef.current)
+    }
+
+    if (trimmedQuery && trimmedQuery.length >= 2) {
+      // 검색 타이머 설정
+      searchTimerRef.current = setTimeout(() => {
+        // 타이머 실행 시점에서 현재 검색어와 ref의 검색어가 같은지 확인
+        const currentQuery = lastQueryRef.current
+        console.log("Timer executed - Current query:", currentQuery, "Last searched:", lastSearchedQuery)
+
+        if (currentQuery && currentQuery.length >= 2 && currentQuery !== lastSearchedQuery) {
+          console.log("Executing search for:", currentQuery)
+          performSearch(currentQuery, false)
         }
-      }, 500) // 500ms 후 최종 확인
+      }, 300) // 300ms 후 검색
     } else {
       setSearchResults([])
       setShowResults(false)
@@ -173,11 +171,8 @@ export default function HomePage() {
     }
 
     return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
-      }
-      if (finalCheckTimerRef.current) {
-        clearTimeout(finalCheckTimerRef.current)
+      if (searchTimerRef.current) {
+        clearTimeout(searchTimerRef.current)
       }
     }
   }, [searchQuery, lastSearchedQuery, performSearch])
@@ -218,13 +213,11 @@ export default function HomePage() {
   const handleEnterSearch = () => {
     const trimmedQuery = searchQuery.trim()
     if (trimmedQuery.length >= 2) {
-      // Enter 키 검색 시 모든 타이머 클리어하고 즉시 검색
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
+      // Enter 키 검색 시 타이머 클리어하고 즉시 검색
+      if (searchTimerRef.current) {
+        clearTimeout(searchTimerRef.current)
       }
-      if (finalCheckTimerRef.current) {
-        clearTimeout(finalCheckTimerRef.current)
-      }
+      console.log("Enter key search for:", trimmedQuery)
       performSearch(trimmedQuery, false)
     }
   }
