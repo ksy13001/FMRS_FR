@@ -302,7 +302,7 @@ export default function PlayerDetailContent() {
                 className="w-5 h-5 object-contain"
               />
             )}
-            <p className="text-base text-slate-300">{player.playerDetailsDto?.teamName || "FA"}</p>
+            <p className="text-base text-slate-300">{player.playerDetailsDto?.teamName || "Team"}</p>
           </div>
         </div>
       </section>
@@ -314,7 +314,7 @@ export default function PlayerDetailContent() {
             {/* Player Header */}
             <div className="flex flex-col sm:flex-row items-start gap-3 mb-4">
               <div className="relative group">
-                <div className="w-24 h-24 rounded-lg overflow-hidden bg-slate-200 border border-slate-400 shadow-sm transition-transform duration-300 transform group-hover:scale-105">
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden bg-slate-200 border border-slate-400 shadow-sm transition-transform duration-300 transform group-hover:scale-105">
                   <ImageWithFallback
                     src={player.playerDetailsDto?.imageUrl || "/placeholder.svg?height=96&width=96"}
                     alt={player.playerDetailsDto?.name || "Player"}
@@ -382,7 +382,7 @@ export default function PlayerDetailContent() {
                             className="w-4 h-4 object-contain"
                           />
                         )}
-                        <span>{player.playerDetailsDto?.teamName || "FA"}</span>
+                        <span>{player.playerDetailsDto?.teamName || "Unknown"}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1 text-slate-700">

@@ -10,6 +10,73 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  /* 모바일 터치 최적화 */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  /* 모바일에서 탭 하이라이트 제거 */
+  .no-tap-highlight {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* 스크롤바 스타일링 (웹킷 기반 브라우저) */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  /* 모바일 스크롤 최적화 */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* 모바일에서 입력 필드 줌 방지 */
+  @media screen and (max-width: 768px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="search"],
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+
+    /* 모바일에서 스크롤 가능한 영역 최적화 */
+    .mobile-scroll-container {
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      transform: translateZ(0); /* 하드웨어 가속 */
+    }
+
+    /* 모바일 드롭다운 최적화 */
+    .mobile-dropdown {
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      will-change: scroll-position;
+      transform: translate3d(0, 0, 0); /* 하드웨어 가속 강제 */
+    }
+  }
 }
 
 @layer base {
@@ -95,4 +162,68 @@ body {
 
 .hero-gradient {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+/* 모바일 최적화 추가 스타일 */
+@media (max-width: 768px) {
+  /* 모바일에서 더 나은 터치 경험을 위한 스타일 */
+  .mobile-card {
+    @apply rounded-xl shadow-sm border border-gray-100;
+  }
+
+  .mobile-button {
+    @apply min-h-[44px] px-4 py-3 text-base rounded-lg;
+  }
+
+  .mobile-input {
+    @apply min-h-[44px] px-4 py-3 text-base rounded-lg;
+  }
+
+  /* 모바일 스크롤 영역 강화 */
+  .mobile-scroll-enhanced {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    will-change: scroll-position;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  /* 드롭다운 스크롤 영역 최적화 */
+  .dropdown-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    will-change: scroll-position;
+    transform: translate3d(0, 0, 0);
+    isolation: isolate;
+  }
+
+  /* 터치 이벤트 최적화 */
+  .touch-scroll-container {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* iOS Safari 특별 처리 */
+  .ios-scroll-container {
+    -webkit-overflow-scrolling: touch;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    will-change: scroll-position;
+  }
+}
+
+/* 터치 디바이스 전용 스타일 */
+@media (hover: none) and (pointer: coarse) {
+  .mobile-dropdown-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: none;
+  }
+}
+
+/* iOS Safari 스크롤 문제 해결 */
+@supports (-webkit-touch-callout: none) {
+  .ios-scroll-fix {
+    -webkit-overflow-scrolling: touch;
+    transform: translateZ(0);
+  }
 }

@@ -114,7 +114,7 @@ function CollapsibleSection({
   return (
     <div className="form-section mb-4">
       <div
-        className={`section-header flex items-center justify-between ${bgColor} p-2 rounded-lg cursor-pointer`}
+        className={`section-header flex items-center justify-between ${bgColor} p-3 md:p-2 rounded-lg cursor-pointer`}
         onClick={onToggle}
       >
         <h2 className={`text-sm font-semibold ${textColor} flex items-center`}>
@@ -186,7 +186,7 @@ function AttributeInput({ label, field, value, onChange, min = 1, max = 20 }: At
         onBlur={() => {
           setShowError(false)
         }}
-        className={`w-full px-2 py-1 text-xs border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+        className={`w-full px-2 py-2 md:py-1 text-xs border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
           showError ? "border-red-300 bg-red-50" : "border-gray-300"
         }`}
       />
@@ -547,7 +547,7 @@ export default function PlayerDetailSearchContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Search Form Column */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden sticky top-4">
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden sticky top-20 md:top-4">
               <form
                 onSubmit={(e) => {
                   e.preventDefault()
@@ -575,7 +575,7 @@ export default function PlayerDetailSearchContent() {
                           id="ageMin"
                           value={searchCondition.ageMin || 15}
                           onChange={(e) => handleConditionChange("ageMin", Number(e.target.value))}
-                          className="w-full px-2 py-1 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-2 py-2 md:py-1 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         >
                           {Array.from({ length: 36 }, (_, i) => i + 15).map((age) => (
                             <option key={age} value={age}>
@@ -592,7 +592,7 @@ export default function PlayerDetailSearchContent() {
                           id="ageMax"
                           value={searchCondition.ageMax || 50}
                           onChange={(e) => handleConditionChange("ageMax", Number(e.target.value))}
-                          className="w-full px-2 py-1 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-2 py-2 md:py-1 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         >
                           {Array.from({ length: 36 }, (_, i) => i + 15).map((age) => (
                             <option key={age} value={age}>
@@ -611,7 +611,7 @@ export default function PlayerDetailSearchContent() {
                         value={searchCondition.nationName || ""}
                         onChange={(e) => handleConditionChange("nationName", e.target.value || undefined)}
                         disabled={isLoadingNations}
-                        className="w-full px-2 py-1 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+                        className="w-full px-2 py-2 md:py-1 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                       >
                         <option value="">All Nations</option>
                         {nations.map((nation) => (
@@ -937,7 +937,7 @@ export default function PlayerDetailSearchContent() {
                         ].map(({ pos, left, top, label }) => (
                           <div
                             key={pos}
-                            className={`absolute w-6 h-6 rounded-full transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer transition-all duration-300 border-2 border-transparent ${
+                            className={`absolute w-8 h-8 md:w-6 md:h-6 rounded-full transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer transition-all duration-300 border-2 border-transparent ${
                               selectedPositions.has(pos)
                                 ? "bg-emerald-500 border-emerald-600 shadow-lg"
                                 : "bg-gray-500 hover:bg-gray-400"
@@ -1126,7 +1126,7 @@ export default function PlayerDetailSearchContent() {
                       <button
                         onClick={() => handlePageChange(Math.max(0, currentPage - 1))}
                         disabled={currentPage === 0}
-                        className="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="relative inline-flex items-center px-4 py-3 md:px-3 md:py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <span className="sr-only">Previous</span>
                         <ChevronDown className="rotate-90" size={16} />
@@ -1164,7 +1164,7 @@ export default function PlayerDetailSearchContent() {
                       <button
                         onClick={() => handlePageChange(Math.min(searchResults!.totalPages - 1, currentPage + 1))}
                         disabled={currentPage >= searchResults!.totalPages - 1}
-                        className="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="relative inline-flex items-center px-4 py-3 md:px-3 md:py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <span className="sr-only">Next</span>
                         <ChevronDown className="-rotate-90" size={16} />

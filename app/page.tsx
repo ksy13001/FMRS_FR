@@ -179,15 +179,17 @@ export default function HomePage() {
 
   // 외부 클릭 감지
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
         setShowResults(false)
       }
     }
 
     document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("touchstart", handleClickOutside)
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("touchstart", handleClickOutside)
     }
   }, [])
 
@@ -205,8 +207,13 @@ export default function HomePage() {
   }
 
   const handleInputFocus = () => {
-    if (searchQuery.trim() && searchResults.length > 0) {
+    // 검색어가 있고 이전에 검색한 결과가 있으면 항상 드롭다운 표시
+    if (searchQuery.trim().length >= 2 && searchResults.length > 0) {
       setShowResults(true)
+    }
+    // 검색어가 있지만 결과가 없고 마지막 검색어와 다르면 새로 검색
+    else if (searchQuery.trim().length >= 2 && searchQuery.trim() !== lastSearchedQuery) {
+      performSearch(searchQuery.trim(), false)
     }
   }
 
@@ -227,22 +234,25 @@ export default function HomePage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="hero-gradient text-white py-12">
-        <div className="w-full max-w-7xl mx-auto px-2 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold">Football Manager Research System</h1>
+      <section className="hero-gradient text-white py-8 md:py-12">
+        <div className="w-full max-w-7xl mx-auto px-4 text-center">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">Football Manager Research System</h1>
         </div>
       </section>
 
       {/* Main Content */}
-      <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-8">
+      <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-6 md:py-8">
         {/* Search Container */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8 max-w-3xl mx-auto">
-          <h2 className="text-xl font-semibold mb-4 text-slate-800">Player Search</h2>
+        <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-8 max-w-3xl mx-auto">
+          <h2 className="text-lg md:text-xl font-semibold mb-4 text-slate-800">Player Search</h2>
           <div className="relative" ref={searchContainerRef}>
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
+              <Search
+                className="absolute left-3 md:left-4 top-1/2 transform -translate-y-1/2 text-slate-400"
+                size={20}
+              />
               {isLoading && (
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                <div className="absolute right-3 md:right-4 top-1/2 transform -translate-y-1/2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
                 </div>
               )}
@@ -258,94 +268,112 @@ export default function HomePage() {
                   }
                 }}
                 placeholder="Enter player name (min 2 characters)..."
-                className={`w-full pl-12 ${isLoading ? "pr-12" : "pr-4"} py-4 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-lg`}
+                className={`w-full pl-10 md:pl-12 ${isLoading ? "pr-10 md:pr-12" : "pr-3 md:pr-4"} py-3 md:py-4 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-base md:text-lg`}
               />
             </div>
 
-            {/* Search Results Container */}
+            {/* Search Results Container - 완전히 새로운 스크롤 구현 */}
             {showResults && (
               <div
-                className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-10 max-h-96 overflow-y-auto"
-                onScroll={handleResultsScroll}
+                className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-50"
+                style={{
+                  maxHeight: "70vh",
+                  maxWidth: "100vw",
+                }}
               >
-                {searchResults.length === 0 && !isLoading ? (
-                  <div className="p-4 text-center text-slate-500">No players found</div>
-                ) : (
-                  <div>
-                    {searchResults.map((player) => (
-                      <Link
-                        key={`player-${player.id}`}
-                        href={`/players/${player.id}`}
-                        className="block p-3 hover:bg-slate-50 border-b border-slate-100 last:border-b-0"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-200 border border-slate-300 shadow-sm">
-                            <ImageWithFallback
-                              src={player.imageUrl || "/placeholder.svg"}
-                              alt={player.name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <div className="flex-grow">
-                            <h3 className="font-semibold text-slate-800">{player.name}</h3>
-                            <div className="flex items-center gap-2 text-xs text-slate-600">
-                              <div className="flex items-center gap-1">
-                                {player.teamLogoUrl && (
-                                  <ImageWithFallback
-                                    src={player.teamLogoUrl || "/placeholder.svg"}
-                                    alt="Team logo"
-                                    className="w-4 h-4"
-                                  />
-                                )}
-                                <span>{player.teamName}</span>
+                <div
+                  className="overflow-auto"
+                  style={{
+                    maxHeight: "70vh",
+                    overflowY: "auto",
+                    overflowX: "hidden",
+                    WebkitOverflowScrolling: "touch",
+                  }}
+                  onScroll={handleResultsScroll}
+                >
+                  {searchResults.length === 0 && !isLoading ? (
+                    <div className="p-4 text-center text-slate-500">No players found</div>
+                  ) : (
+                    <div>
+                      {searchResults.map((player) => (
+                        <Link
+                          key={`player-${player.id}`}
+                          href={`/players/${player.id}`}
+                          className="block p-3 md:p-4 hover:bg-slate-50 border-b border-slate-100 last:border-b-0 active:bg-slate-100 transition-colors"
+                          onClick={() => setShowResults(false)}
+                          style={{ minHeight: "60px" }}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg overflow-hidden bg-slate-200 border border-slate-300 shadow-sm flex-shrink-0">
+                              <ImageWithFallback
+                                src={player.imageUrl || "/placeholder.svg"}
+                                alt={player.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="flex-grow min-w-0">
+                              <h3 className="font-semibold text-slate-800 text-sm md:text-base truncate">
+                                {player.name}
+                              </h3>
+                              <div className="flex flex-col gap-1 text-xs md:text-sm text-slate-600">
+                                <div className="flex items-center gap-1">
+                                  {player.teamLogoUrl && (
+                                    <ImageWithFallback
+                                      src={player.teamLogoUrl || "/placeholder.svg"}
+                                      alt="Team logo"
+                                      className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0"
+                                    />
+                                  )}
+                                  <span className="truncate">{player.teamName}</span>
+                                </div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  {player.age && player.age > 0 && (
+                                    <div className="flex items-center gap-1">
+                                      <Calendar size={10} className="md:hidden" />
+                                      <Calendar size={12} className="hidden md:block" />
+                                      <span>Age: {player.age}</span>
+                                    </div>
+                                  )}
+                                  {player.currentAbility && (
+                                    <div className="flex items-center gap-1">
+                                      <Star size={10} className="md:hidden" />
+                                      <Star size={12} className="hidden md:block" />
+                                      <span>CA: {player.currentAbility}</span>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                              {player.age && player.age > 0 && (
-                                <>
-                                  <span>•</span>
-                                  <div className="flex items-center gap-1">
-                                    <Calendar size={12} />
-                                    <span>Age: {player.age}</span>
-                                  </div>
-                                </>
-                              )}
-                              {player.currentAbility && (
-                                <>
-                                  <span>•</span>
-                                  <div className="flex items-center gap-1">
-                                    <Star size={12} />
-                                    <span>CA: {player.currentAbility}</span>
-                                  </div>
-                                </>
-                              )}
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <div className="flex flex-col items-end">
+                                <span className="text-xs md:text-sm text-slate-600 truncate max-w-[80px] md:max-w-none">
+                                  {player.nationName}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <div className="flex flex-col items-end">
-                              <span className="text-xs text-slate-600">{player.nationName}</span>
-                            </div>
+                        </Link>
+                      ))}
+
+                      {isLoading && (
+                        <div className="p-4 text-center">
+                          <div className="flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-2"></div>
+                            <span className="text-sm">Loading more results...</span>
                           </div>
                         </div>
-                      </Link>
-                    ))}
+                      )}
 
-                    {isLoading && (
-                      <div className="p-4 text-center">
-                        <div className="flex items-center justify-center">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-2"></div>
-                          <span>Loading more results...</span>
+                      {hasMore && !isLoading && (
+                        <div className="p-2 text-center text-xs text-slate-500">
+                          <div className="flex items-center justify-center">
+                            <span>Scroll for more results</span>
+                          </div>
                         </div>
-                      </div>
-                    )}
-
-                    {hasMore && !isLoading && (
-                      <div className="p-2 text-center text-xs text-slate-500">
-                        <div className="flex items-center justify-center">
-                          <span>Scroll for more results</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -354,7 +382,7 @@ export default function HomePage() {
           <div className="mt-4 text-center">
             <Link
               href="/players/detail-search"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm md:text-base"
             >
               <Filter className="mr-2" size={16} />
               Detailed Search
