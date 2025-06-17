@@ -9,11 +9,13 @@ import { Search, ChevronDown, User, Zap, Brain, Dumbbell, Layout, ArrowRight, St
 import Header from "@/components/layout/header"
 import ImageWithFallback from "@/components/image-with-fallback"
 import Footer from "@/components/layout/footer"
+import TeamSearchInput from "@/components/team-search-input"
 
 interface SearchCondition {
   ageMin?: number
   ageMax?: number
   nationName?: string
+  teamId?: number // teamName 대신 teamId 사용
   // Technical attributes
   corners?: number
   crossing?: number
@@ -230,10 +232,11 @@ export default function PlayerDetailSearchContent() {
   // Selected positions for the interactive map
   const [selectedPositions, setSelectedPositions] = useState<Set<string>>(new Set())
 
-  // 숫자 필드 목록 정의
+  // 숫자 필드 목록 정의 (teamId 추가)
   const numericFields = [
     "ageMin",
     "ageMax",
+    "teamId", // teamId 추가
     "corners",
     "crossing",
     "dribbling",
@@ -339,7 +342,6 @@ export default function PlayerDetailSearchContent() {
     const selected = new Set<string>()
     positions.forEach((pos) => {
       if (params[pos] && Number.parseInt(params[pos]) >= 15) {
-        // 10 → 15로 변경
         selected.add(pos)
       }
     })
@@ -464,11 +466,6 @@ export default function PlayerDetailSearchContent() {
     const resetCondition = { ageMin: 15, ageMax: 50 }
     setSearchCondition(resetCondition)
     setSelectedPositions(new Set())
-    // 검색 결과는 유지하고 조건만 리셋
-    // setSearchResults(null) 제거
-    // setCurrentPage(0) 제거 - 현재 페이지도 유지
-    // setSortBy("name") 제거 - 정렬도 유지
-    // URL도 변경하지 않음 - router.push 제거
   }
 
   const handleConditionChange = (field: keyof SearchCondition, value: any) => {
@@ -503,7 +500,7 @@ export default function PlayerDetailSearchContent() {
       handleConditionChange(position as keyof SearchCondition, undefined)
     } else {
       newSelected.add(position)
-      handleConditionChange(position as keyof SearchCondition, 15) // 10 → 15로 변경
+      handleConditionChange(position as keyof SearchCondition, 15)
     }
     setSelectedPositions(newSelected)
   }
@@ -624,6 +621,14 @@ export default function PlayerDetailSearchContent() {
                         ))}
                       </select>
                       {isLoadingNations && <div className="text-xs text-gray-500 mt-1">Loading nations...</div>}
+                    </div>
+                    {/* 팀 검색 - teamId 전달 */}
+                    <div>
+                      <TeamSearchInput
+                        value={searchCondition.teamId}
+                        onChange={(teamId) => handleConditionChange("teamId", teamId)}
+                        placeholder="Search teams (min 2 characters)..."
+                      />
                     </div>
                   </div>
                 </CollapsibleSection>
@@ -1064,7 +1069,7 @@ export default function PlayerDetailSearchContent() {
                                       className="w-4 h-4 mr-1"
                                     />
                                   )}
-                                  <span className="text-slate-600">{player.teamName || "FA"}</span>
+                                  <span className="text-slate-600">{player.teamName}</span>
                                 </div>
                                 <div className="flex items-center gap-1 mt-1">
                                   {player.age && player.age > 0 && (
@@ -1098,7 +1103,6 @@ export default function PlayerDetailSearchContent() {
                         </div>
                         <div className="bg-slate-50 px-3 py-1.5 flex justify-between items-center">
                           <div className="text-xs text-slate-600">
-                            {/* 키/몸무게 대신 빈 공간 또는 다른 정보 */}
                             <span>Player Details</span>
                           </div>
                           <Link
