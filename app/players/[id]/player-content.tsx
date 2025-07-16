@@ -796,6 +796,7 @@ export default function PlayerDetailContent() {
                       value={player.fmPlayerDetailsDto.personalityAttributes.controversy}
                     />
                   </div>
+                
                   <h4 className="font-semibold mt-3 mb-1 flex items-center gap-1 text-xs text-slate-700">
                     <Eye className="text-purple-500" size={14} />
                     Hidden

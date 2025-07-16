@@ -10,9 +10,15 @@ const nextConfig = {
     domains: ['localhost', 'placeholder.svg', 'blob.v0.dev'],
     remotePatterns: [
       {
-        protocol: 'http',
+        protocol: 'https', // 🔧 HTTPS로 변경
         hostname: 'localhost',
-        port: '8080',
+        port: '8443',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http', // 🔧 HTTP도 유지 (fallback)
+        hostname: 'localhost',
+        port: '8443',
         pathname: '/**',
       },
       {

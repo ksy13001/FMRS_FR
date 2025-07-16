@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -10,11 +9,20 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAuth } from "@/components/auth-provider"
-import type { LoginResponse } from "@/types/auth-types"
 
 interface LoginFormData {
   username: string
   password: string
+}
+
+interface LoginResponse {
+  success: boolean
+  message: string
+  user?: {
+    id: number
+    username: string
+  }
+  accessToken?: string // 🔑 Access Token 추가
 }
 
 export default function LoginContent() {
@@ -51,12 +59,10 @@ export default function LoginContent() {
   const handleInputChange = (field: keyof LoginFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
 
-    // 입력 시 해당 필드의 에러 메시지 제거
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }))
     }
 
-    // 메시지 제거
     if (message) {
       setMessage(null)
     }
@@ -80,48 +86,28 @@ export default function LoginContent() {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // 쿠키 포함
+        credentials: "include", // 🍪 쿠키 포함
         body: JSON.stringify(formData),
       })
 
       console.log("🔐 로그인 응답 상태:", response.status)
 
-      // 🔧 안전한 JSON 파싱
-      let data: LoginResponse
-      try {
-        const responseText = await response.text()
-        console.log("🔐 로그인 응답 본문:", responseText)
-
-        if (!responseText.trim()) {
-          throw new Error("Empty response from server")
-        }
-
-        data = JSON.parse(responseText)
-      } catch (parseError) {
-        console.error("❌ JSON 파싱 오류:", parseError)
-        setMessage({
-          type: "error",
-          text: "Server returned invalid response. Please try again.",
-        })
-        return
-      }
-
-      console.log("🔐 파싱된 로그인 데이터:", data)
+      const data: LoginResponse = await response.json()
+      console.log("🔐 로그인 응답 데이터:", data)
 
       if (response.ok && data.success) {
         console.log("✅ 로그인 성공!")
         setMessage({ type: "success", text: data.message })
 
-        // 🔧 사용자 정보 저장 (Access Token은 이제 쿠키에 자동 저장됨)
-        if (data.user) {
-          console.log("🔑 사용자 정보 저장:", data.user)
-          login(data.user)
+        // 🔑 사용자 정보와 Access Token으로 로그인 처리
+        if (data.user && data.accessToken) {
+          console.log("🔑 Access Token과 사용자 정보로 로그인 처리")
+          login(data.user, data.accessToken)
+          router.push("/")
         } else {
-          console.warn("⚠️ 사용자 정보 누락")
+          console.warn("⚠️ 사용자 정보 또는 Access Token 누락")
+          setMessage({ type: "error", text: "Login response incomplete" })
         }
-
-        // 🔧 수정: 즉시 리다이렉트 (setTimeout 제거)
-        router.push("/")
       } else {
         console.log("❌ 로그인 실패:", data.message)
         setMessage({ type: "error", text: data.message || "Login failed" })
@@ -138,7 +124,7 @@ export default function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 pt-20">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Sign In</CardTitle>
