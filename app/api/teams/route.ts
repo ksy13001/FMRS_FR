@@ -6,9 +6,11 @@ interface TeamDetailsDto {
   teamLogo: string
 }
 
+export const dynamic = "force-dynamic"
+
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const { searchParams } = new URL(request.url)
+    const searchParams = request.nextUrl.searchParams
     const query = searchParams.get("q") || ""
 
     if (!query || query.length < 2) {
@@ -35,7 +37,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const data: TeamDetailsDto[] = await response.json()
 
-    // 백엔드에서 이미 이름순으로 정렬되어 제공되므로 추가 정렬 불필요
     return NextResponse.json(data)
   } catch (error) {
     console.error("Teams API error:", error)
