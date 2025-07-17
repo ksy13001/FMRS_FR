@@ -1,6 +1,6 @@
 import type { Config } from "tailwindcss"
 
-const config = {
+const config: Config = {
   darkMode: ["class"],
   content: [
     "./pages/**/*.{ts,tsx}",
@@ -76,6 +76,30 @@ const config = {
     },
   },
   plugins: [require("tailwindcss-animate")],
-} satisfies Config
+  safelist: [
+    "bg-red-500",
+    "bg-blue-500",
+    "bg-green-500",
+    "bg-yellow-500",
+    "bg-purple-500",
+    "bg-pink-500",
+    "bg-indigo-500",
+    "bg-gray-500",
+    "text-white",
+    "text-black",
+    "p-4",
+    "mt-2",
+    "mb-2",
+    "ml-2",
+    "mr-2",
+    "border-2",
+    "border-dashed",
+    "border-gray-400",
+    "rounded",
+    "shadow",
+    "hover:bg-gray-100",
+    "transition-colors",
+  ],
+}
 
 export default config
