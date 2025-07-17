@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
     console.log("🔐 프론트엔드 로그인 API 호출")
 
     const body = await request.json()
-    const backendUrl = process.env.BACKEND_URL || "https://localhost:8443"
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:8080"
     const apiUrl = new URL("/api/auth/login", backendUrl)
 
     const backendResponse = await fetch(apiUrl.toString(), {

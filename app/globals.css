@@ -197,19 +197,6 @@ body {
     transform: translate3d(0, 0, 0);
     isolation: isolate;
   }
-
-  /* 터치 이벤트 최적화 */
-  .touch-scroll-container {
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* iOS Safari 특별 처리 */
-  .ios-scroll-container {
-    -webkit-overflow-scrolling: touch;
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
-    will-change: scroll-position;
-  }
 }
 
 /* 터치 디바이스 전용 스타일 */
