@@ -1,57 +1,37 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-interface TeamDetailsDto {
-  id: number
-  teamName: string
-  teamLogo: string
-}
-
 export const dynamic = "force-dynamic"
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
-    const query = searchParams.get("q") || ""
+    const query = searchParams.get("query") || ""
 
-    if (!query || query.length < 2) {
-      return NextResponse.json([])
-    }
+    // Mock data for teams
+    const teams = [
+      { id: 1, name: "Manchester City", league: "Premier League", country: "England" },
+      { id: 2, name: "Real Madrid", league: "La Liga", country: "Spain" },
+      { id: 3, name: "Bayern Munich", league: "Bundesliga", country: "Germany" },
+      { id: 4, name: "Paris Saint-Germain", league: "Ligue 1", country: "France" },
+      { id: 5, name: "Juventus", league: "Serie A", country: "Italy" },
+    ]
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:8080"
-    const apiUrl = new URL(`/api/teams/search/${encodeURIComponent(query)}`, backendUrl)
+    const filteredTeams = query
+      ? teams.filter(
+          (team) =>
+            team.name.toLowerCase().includes(query.toLowerCase()) ||
+            team.league.toLowerCase().includes(query.toLowerCase()) ||
+            team.country.toLowerCase().includes(query.toLowerCase()),
+        )
+      : teams
 
-    console.log(`Calling backend: ${apiUrl.toString()}`)
-
-    const response = await fetch(apiUrl.toString(), {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      signal: AbortSignal.timeout(10000),
+    return NextResponse.json({
+      success: true,
+      data: filteredTeams,
+      total: filteredTeams.length,
     })
-
-    if (!response.ok) {
-      console.error(`Backend response error: ${response.status} ${response.statusText}`)
-      throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
-    }
-
-    const data: TeamDetailsDto[] = await response.json()
-
-    return NextResponse.json(data)
   } catch (error) {
     console.error("Teams API error:", error)
-
-    if (error instanceof Error) {
-      return NextResponse.json(
-        {
-          error: "Failed to fetch teams",
-          details: error.message,
-          timestamp: new Date().toISOString(),
-        },
-        { status: 500 },
-      )
-    }
-
-    return NextResponse.json({ error: "Failed to fetch teams" }, { status: 500 })
+    return NextResponse.json({ success: false, error: "Failed to fetch teams" }, { status: 500 })
   }
 }
