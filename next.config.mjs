@@ -6,21 +6,12 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  experimental: {
+    serverComponentsExternalPackages: [],
+  },
   images: {
-    domains: ['localhost', 'placeholder.svg', 'blob.v0.dev'],
+    domains: ['localhost'],
     remotePatterns: [
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '8080',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'localhost',
-        port: '8443',
-        pathname: '/**',
-      },
       {
         protocol: 'https',
         hostname: '**',
@@ -31,6 +22,27 @@ const nextConfig = {
       },
     ],
     unoptimized: true,
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${process.env.BACKEND_URL || 'http://localhost:8080'}/api/:path*`,
+      },
+    ]
+  },
+  async headers() {
+    return [
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
+          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization' },
+        ],
+      },
+    ]
   },
 }
 
