@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     const backendUrl = process.env.BACKEND_URL || "http://localhost:8080"
     const apiUrl = new URL("/api/auth/status", backendUrl)
 
-    // 🔑 Access Token 쿠키에서 추출
+    // 🔑 Access Token 쿠키에서 추출 (프론트엔드는 쿠키 기반 인증만 사용)
     const accessToken = request.cookies.get("access_token")?.value
     console.log("🔑 Access Token 쿠키:", accessToken ? "존재함" : "없음")
 

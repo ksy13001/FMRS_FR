@@ -22,7 +22,6 @@ interface LoginResponse {
     id: number
     username: string
   }
-  accessToken?: string // 🔑 Access Token 추가
 }
 
 export default function LoginContent() {
@@ -96,17 +95,12 @@ export default function LoginContent() {
       console.log("🔐 로그인 응답 데이터:", data)
 
       if (response.ok && data.success) {
-        console.log("✅ 로그인 성공!")
-        setMessage({ type: "success", text: data.message })
-
-        // 🔑 사용자 정보와 Access Token으로 로그인 처리
-        if (data.user && data.accessToken) {
-          console.log("🔑 Access Token과 사용자 정보로 로그인 처리")
-          login(data.user, data.accessToken)
-          router.push("/")
+        setMessage({ type: "success", text: data.message });
+        if (data.user) {
+          login(data.user);
+          router.push("/");
         } else {
-          console.warn("⚠️ 사용자 정보 또는 Access Token 누락")
-          setMessage({ type: "error", text: "Login response incomplete" })
+          setMessage({ type: "error", text: "Login response incomplete" });
         }
       } else {
         console.log("❌ 로그인 실패:", data.message)

@@ -30,12 +30,12 @@ export async function POST(request: NextRequest) {
     if (backendResponse.ok) {
       // 🔑 Authorization 헤더에서 새 Access Token 추출
       const authHeader = backendResponse.headers.get("Authorization")
-      console.log("🔑 새 Access Token 헤더:", authHeader)
-
+      let accessToken = null
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        accessToken = authHeader.substring(7)
+      }
       // 🍪 새 Refresh Token 쿠키 전달
       const setCookieHeaders = backendResponse.headers.getSetCookie()
-      console.log("🍪 새 Refresh Token 쿠키:", setCookieHeaders)
-
       const response = NextResponse.json(
         {
           success: true,
@@ -43,17 +43,20 @@ export async function POST(request: NextRequest) {
         },
         { status: 200 },
       )
-
-      // 🔑 Authorization 헤더 전달 (클라이언트에서 메모리에 저장)
-      if (authHeader) {
-        response.headers.set("Authorization", authHeader)
-      }
-
       // 🍪 새 Refresh Token 쿠키 전달
       setCookieHeaders.forEach((cookie) => {
         response.headers.append("Set-Cookie", cookie)
       })
-
+      // 🍪 Access Token을 HttpOnly, Secure, SameSite=None 쿠키로 설정
+      if (accessToken) {
+        response.cookies.set("access_token", accessToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "none",
+          path: "/",
+          maxAge: 60 * 30, // 30분
+        })
+      }
       return response
     } else {
       console.log("❌ 토큰 갱신 실패")

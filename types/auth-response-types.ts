@@ -23,8 +23,6 @@ export interface LoginResponse {
     id: number
     username: string
   }
-  accessToken?: string
-  refreshToken?: string
 }
 
 export interface LogoutResponse {
