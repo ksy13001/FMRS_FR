@@ -1,4 +1,4 @@
-import type { User } from "@/types/auth-types"
+// 🔐 로그인 플로우 관련 유틸리티 함수들
 
 export interface LoginFormData {
   username: string
@@ -8,8 +8,11 @@ export interface LoginFormData {
 export interface LoginResponse {
   success: boolean
   message: string
-  user?: User
-  accessToken?: string
+  user?: {
+    id?: number
+    username?: string
+    email: string
+  }
 }
 
 export interface LoginFormErrors {
@@ -57,7 +60,7 @@ export async function performLogin(formData: LoginFormData): Promise<LoginRespon
       username: formData.username.trim(),
       password: formData.password,
     }),
-    credentials: "include",
+    credentials: "include", // 🔐 쿠키를 포함하여 요청/응답
   })
 
   const data: LoginResponse = await response.json()
@@ -72,7 +75,9 @@ export async function performLogin(formData: LoginFormData): Promise<LoginRespon
 /**
  * 로그인 성공 후 처리
  */
-export function handleLoginSuccess(userData: User): void {
+export function handleLoginSuccess(userData: LoginResponse["user"]): void {
+  // 🔐 토큰은 HttpOnly 쿠키로 자동 저장됨
+  // localStorage에는 사용자 정보만 저장
   if (userData) {
     localStorage.setItem("user", JSON.stringify(userData))
   }
