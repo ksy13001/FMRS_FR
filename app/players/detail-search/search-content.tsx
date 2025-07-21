@@ -161,7 +161,6 @@ function AttributeInput({ label, field, value, onChange, min = 1, max = 20 }: At
         onChange={(e) => {
           const newInputValue = e.target.value.trim()
           setInputValue(newInputValue)
-          console.log(`AttributeInput onChange - ${field}:`, newInputValue)
 
           if (newInputValue === "") {
             onChange(field, undefined)
@@ -171,15 +170,12 @@ function AttributeInput({ label, field, value, onChange, min = 1, max = 20 }: At
 
           const numValue = Number(newInputValue)
           if (!isNaN(numValue) && numValue >= min && numValue <= max) {
-            console.log(`Valid number for ${field}:`, numValue)
             onChange(field, numValue)
             setShowError(false)
           } else {
-            console.log(`Invalid number for ${field}:`, newInputValue, "- showing error and clearing")
             setInputValue("") // 잘못된 값 입력 시 입력창 비우기
             onChange(field, undefined)
             setShowError(true)
-            // 잠시 후 에러 메시지 숨기기
             setTimeout(() => setShowError(false), 3000)
           }
         }}
@@ -294,11 +290,9 @@ export default function PlayerDetailSearchContent() {
   // Initialize from URL params
   useEffect(() => {
     const params = Object.fromEntries(searchParams.entries())
-    console.log("useEffect triggered with URL params:", params)
 
     // URL에 파라미터가 없으면 기본값만 설정하고 리턴
     if (Object.keys(params).length === 0) {
-      console.log("No URL params, keeping default values")
       return
     }
 
@@ -312,25 +306,18 @@ export default function PlayerDetailSearchContent() {
         const numValue = Number(value)
         if (!isNaN(numValue)) {
           ;(newCondition as any)[key] = numValue
-          console.log(`Parsing ${key}: "${value}" -> ${numValue}`)
         }
       } else if (value && value !== "") {
         ;(newCondition as any)[key] = value
-        console.log(`Parsing ${key}: "${value}" (string)`)
       }
     })
-
-    console.log("Final newCondition from URL:", newCondition)
 
     // 현재 상태와 다를 때만 업데이트
     const currentConditionStr = JSON.stringify(searchCondition)
     const newConditionStr = JSON.stringify(newCondition)
 
     if (currentConditionStr !== newConditionStr) {
-      console.log("Updating searchCondition from URL")
       setSearchCondition(newCondition)
-    } else {
-      console.log("searchCondition unchanged, skipping update")
     }
 
     setCurrentPage(Number.parseInt(params.page || "0"))
@@ -375,50 +362,31 @@ export default function PlayerDetailSearchContent() {
   }, [])
 
   const performSearch = async (condition: SearchCondition, page = 0, sort = "name") => {
-    console.log("performSearch called with condition:", condition)
-
-    // 새 검색 시작 시 이전 결과 즉시 클리어
     setSearchResults(null)
     setIsLoading(true)
-
     try {
       const params = new URLSearchParams()
-
-      // 항상 ageMin과 ageMax 포함
       params.append("ageMin", (condition.ageMin || 15).toString())
       params.append("ageMax", (condition.ageMax || 50).toString())
-
-      // 나머지 조건들 추가
       Object.entries(condition).forEach(([key, value]) => {
         if (key !== "ageMin" && key !== "ageMax" && value !== undefined && value !== null && value !== "") {
           params.append(key, value.toString())
-          console.log(`Adding to search params: ${key} = ${value}`)
         }
       })
-
       params.append("page", page.toString())
       params.append("size", "10")
       if (sort) params.append("sort", sort)
-
-      console.log("Search params:", Object.fromEntries(params.entries()))
-
       const response = await fetch(`/api/search/detail-player?${params}`)
       if (!response.ok) {
         throw new Error(`API returned status: ${response.status}`)
       }
-
       const data = await response.json()
-      console.log("Search results:", data)
-
-      // 응답 구조 확인 및 안전하게 처리
       setSearchResults({
         players: Array.isArray(data.players) ? data.players : [],
         totalElements: typeof data.totalElements === "number" ? data.totalElements : 0,
         totalPages: typeof data.totalPages === "number" ? data.totalPages : 0,
       })
     } catch (error) {
-      console.error("Search error:", error)
-      // 에러 발생 시 빈 결과 설정
       setSearchResults({
         players: [],
         totalElements: 0,
@@ -430,14 +398,12 @@ export default function PlayerDetailSearchContent() {
   }
 
   const handleSearch = () => {
-    console.log("handleSearch called with searchCondition:", searchCondition)
     setCurrentPage(0)
     performSearch(searchCondition, 0, sortBy)
     updateURL(searchCondition, 0, sortBy)
   }
 
   const updateURL = (condition: SearchCondition, page: number, sort: string) => {
-    console.log("updateURL called with condition:", condition)
     const params = new URLSearchParams()
 
     // 항상 ageMin과 ageMax 포함
@@ -448,7 +414,6 @@ export default function PlayerDetailSearchContent() {
     Object.entries(condition).forEach(([key, value]) => {
       if (key !== "ageMin" && key !== "ageMax" && value !== undefined && value !== null && value !== "") {
         params.append(key, value.toString())
-        console.log(`Adding to URL params: ${key} = ${value}`)
       }
     })
 
@@ -457,7 +422,6 @@ export default function PlayerDetailSearchContent() {
     if (sort) params.append("sort", sort)
 
     const newUrl = `/players/detail-search?${params.toString()}`
-    console.log("Navigating to:", newUrl)
     router.push(newUrl)
   }
 
@@ -468,21 +432,16 @@ export default function PlayerDetailSearchContent() {
   }
 
   const handleConditionChange = (field: keyof SearchCondition, value: any) => {
-    console.log(`handleConditionChange: ${field} = ${value}`)
-    setSearchCondition((prev) => {
-      // 값이 실제로 변경되었을 때만 업데이트
-      if (prev[field] === value) {
-        console.log(`Value unchanged for ${field}, skipping update`)
-        return prev
-      }
+    // 값이 실제로 변경되었을 때만 업데이트
+    if (searchCondition[field] === value) {
+      return
+    }
 
-      const newCondition = {
-        ...prev,
-        [field]: value,
-      }
-      console.log("New searchCondition:", newCondition)
-      return newCondition
-    })
+    const newCondition = {
+      ...searchCondition,
+      [field]: value,
+    }
+    setSearchCondition(newCondition)
   }
 
   const toggleSection = (section: keyof typeof collapsedSections) => {

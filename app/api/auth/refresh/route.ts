@@ -28,13 +28,11 @@ export async function POST(request: NextRequest) {
     console.log(`🔄 백엔드 응답 상태: ${backendResponse.status}`)
 
     if (backendResponse.ok) {
-      // 🔑 Authorization 헤더에서 새 Access Token 추출
       const authHeader = backendResponse.headers.get("Authorization")
       let accessToken = null
       if (authHeader && authHeader.startsWith("Bearer ")) {
         accessToken = authHeader.substring(7)
       }
-      // 🍪 새 Refresh Token 쿠키 전달
       const setCookieHeaders = backendResponse.headers.getSetCookie()
       const response = NextResponse.json(
         {
@@ -43,11 +41,9 @@ export async function POST(request: NextRequest) {
         },
         { status: 200 },
       )
-      // 🍪 새 Refresh Token 쿠키 전달
       setCookieHeaders.forEach((cookie) => {
         response.headers.append("Set-Cookie", cookie)
       })
-      // 🍪 Access Token을 HttpOnly, Secure, SameSite=None 쿠키로 설정
       if (accessToken) {
         response.cookies.set("access_token", accessToken, {
           httpOnly: true,

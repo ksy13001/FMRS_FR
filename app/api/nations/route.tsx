@@ -9,8 +9,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const backendUrl = process.env.BACKEND_URL || "http://localhost:8080"
     const apiUrl = new URL("/api/nations", backendUrl)
 
-    console.log(`Calling backend: ${apiUrl.toString()}`)
-
     const response = await fetch(apiUrl.toString(), {
       headers: {
         "Content-Type": "application/json",

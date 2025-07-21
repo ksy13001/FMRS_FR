@@ -9,24 +9,15 @@ export async function GET(request: NextRequest) {
 
     // 🔑 Access Token 쿠키에서 추출 (프론트엔드는 쿠키 기반 인증만 사용)
     const accessToken = request.cookies.get("access_token")?.value
-    console.log("🔑 Access Token 쿠키:", accessToken ? "존재함" : "없음")
-
+    // Authorization 헤더로 전달하는 부분 제거
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       Accept: "application/json",
     }
-
-    // Access Token이 있으면 Authorization 헤더에 추가
-    if (accessToken) {
-      headers.Authorization = `Bearer ${accessToken}`
-      console.log("🔑 Authorization 헤더 추가")
-    }
-
     // Refresh Token 쿠키 전달을 위해 쿠키 헤더 복사
     const cookieHeader = request.headers.get("cookie")
     if (cookieHeader) {
       headers.Cookie = cookieHeader
-      console.log("🍪 쿠키 헤더 전달:", cookieHeader)
     }
 
     console.log(`🔍 백엔드 호출: ${apiUrl.toString()}`)

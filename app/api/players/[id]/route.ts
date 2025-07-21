@@ -10,8 +10,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     // 백엔드 API 경로 수정: /players/{id} -> /api/players/{id}
     const apiUrl = new URL(`/api/players/${playerId}`, backendUrl)
 
-    console.log(`Calling backend: ${apiUrl.toString()}`)
-
     const response = await fetch(apiUrl.toString(), {
       headers: {
         "Content-Type": "application/json",

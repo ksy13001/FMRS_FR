@@ -14,9 +14,6 @@ export async function GET(request: NextRequest) {
 
     const backendUrl = process.env.BACKEND_URL || "http://localhost:8080"
 
-    console.log(`Calling backend: ${backendUrl}/api/search/detail-player`)
-    console.log("Search params:", Object.fromEntries(searchParams.entries()))
-
     // GET 요청으로 변경, 쿼리 파라미터 사용
     const response = await fetch(`${backendUrl}/api/search/detail-player?${searchParams.toString()}`, {
       method: "GET", // POST → GET 변경
