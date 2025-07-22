@@ -1,33 +1,32 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
+import { createBackendUrl } from "@/lib/api-config"
 
 export async function POST(request: NextRequest) {
+  console.log("🔄 [REISSUE] 토큰 재발급 요청 받음");
+  console.log("📅 시간:", new Date().toISOString());
+  console.log("🍪 쿠키:", request.cookies.getAll());
+  
   try {
-    console.log("🔄 토큰 갱신 API 호출")
-
-    const backendUrl = process.env.BACKEND_URL || "https://localhost:8443"
-    const apiUrl = new URL("/api/auth/reissue", backendUrl)
-
+    console.log("🔄 토큰 재발급 API 호출")
+    
+    // Refresh Token 쿠키 전달을 위해 쿠키 헤더 복사
+    const cookieHeader = request.headers.get("cookie")
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       Accept: "application/json",
     }
-
-    // 🍪 Refresh Token 쿠키 전달
-    const cookieHeader = request.headers.get("cookie")
+    
     if (cookieHeader) {
       headers.Cookie = cookieHeader
-      console.log("🍪 Refresh Token 쿠키 헤더 전달")
     }
 
-    const backendResponse = await fetch(apiUrl.toString(), {
+    const backendResponse = await fetch(createBackendUrl("/api/auth/reissue"), {
       method: "POST",
       headers,
-      signal: AbortSignal.timeout(10000),
     })
 
-    console.log(`🔄 백엔드 응답 상태: ${backendResponse.status}`)
-
     if (backendResponse.ok) {
+      console.log("✅ [REISSUE] 토큰 재발급 성공");
       const authHeader = backendResponse.headers.get("Authorization")
       let accessToken = null
       if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -55,23 +54,18 @@ export async function POST(request: NextRequest) {
       }
       return response
     } else {
-      console.log("❌ 토큰 갱신 실패")
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Token refresh failed",
-        },
-        { status: 401 },
-      )
+      console.log("❌ [REISSUE] 토큰 재발급 실패 - 상태:", backendResponse.status);
+      const errorData = await backendResponse.json()
+      return NextResponse.json(errorData, { status: backendResponse.status })
     }
   } catch (error) {
-    console.error("❌ 토큰 갱신 API 오류:", error)
+    console.log("💥 [REISSUE] 에러 발생:", error);
     return NextResponse.json(
       {
         success: false,
-        message: "Network error during token refresh",
+        message: "Internal server error",
       },
       { status: 500 },
     )
   }
-}
+} 

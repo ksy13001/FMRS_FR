@@ -18,8 +18,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const backendUrl = process.env.BACKEND_URL || "http://localhost:8080"
     const apiUrl = new URL(`/api/teams/search/${encodeURIComponent(query)}`, backendUrl)
 
-    console.log(`Calling backend: ${apiUrl.toString()}`)
-
     const response = await fetch(apiUrl.toString(), {
       headers: {
         "Content-Type": "application/json",
@@ -35,7 +33,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const data: TeamDetailsDto[] = await response.json()
 
-    // 백엔드에서 이미 이름순으로 정렬되어 제공되므로 추가 정렬 불필요
     return NextResponse.json(data)
   } catch (error) {
     console.error("Teams API error:", error)

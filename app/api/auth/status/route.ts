@@ -1,37 +1,34 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { createBackendUrl } from "@/lib/api-config"
 
 export async function GET(request: NextRequest) {
+  console.log("🔍 [STATUS] 인증 상태 확인 요청 받음");
+  console.log("📅 시간:", new Date().toISOString());
+  console.log("🍪 쿠키:", request.cookies.getAll());
+  
   try {
     console.log("🔍 인증 상태 확인 API 호출")
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:8080"
-    const apiUrl = new URL("/api/auth/status", backendUrl)
+    const apiUrl = createBackendUrl("/api/auth/status")
+    console.log(`🔍 백엔드 URL: ${apiUrl}`)
 
-    // 🔑 Access Token 쿠키에서 추출
-    const accessToken = request.cookies.get("access_token")?.value
-    console.log("🔑 Access Token 쿠키:", accessToken ? "존재함" : "없음")
-
+    // Refresh Token 쿠키 전달을 위해 쿠키 헤더 복사
+    const cookieHeader = request.headers.get("cookie")
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       Accept: "application/json",
     }
-
-    // Access Token이 있으면 Authorization 헤더에 추가
-    if (accessToken) {
-      headers.Authorization = `Bearer ${accessToken}`
-      console.log("🔑 Authorization 헤더 추가")
-    }
-
-    // Refresh Token 쿠키 전달을 위해 쿠키 헤더 복사
-    const cookieHeader = request.headers.get("cookie")
+    
     if (cookieHeader) {
       headers.Cookie = cookieHeader
       console.log("🍪 쿠키 헤더 전달:", cookieHeader)
+    } else {
+      console.log("⚠️ 쿠키 헤더 없음")
     }
 
-    console.log(`🔍 백엔드 호출: ${apiUrl.toString()}`)
+    console.log(`🔍 백엔드 호출: ${apiUrl}`)
 
-    const backendResponse = await fetch(apiUrl.toString(), {
+    const backendResponse = await fetch(apiUrl, {
       method: "GET",
       headers,
       signal: AbortSignal.timeout(10000),
@@ -40,43 +37,71 @@ export async function GET(request: NextRequest) {
     console.log(`🔍 백엔드 응답 상태: ${backendResponse.status}`)
 
     if (backendResponse.ok) {
-      console.log("✅ 인증 상태 확인 성공")
-
-      // 로컬스토리지에서 사용자 정보를 가져올 수 있도록 빈 응답 반환
-      return NextResponse.json(
-        {
-          success: true,
-          message: "Authenticated",
-        },
-        { status: 200 },
-      )
+      console.log("✅ [STATUS] 인증 성공");
+      try {
+        const backendData = await backendResponse.json();
+        console.log("📄 백엔드 응답 데이터:", backendData);
+        return NextResponse.json(backendData);
+      } catch (jsonError) {
+        console.log("💥 JSON 파싱 에러:", jsonError);
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Invalid response format",
+          },
+          { status: 500 },
+        )
+      }
     } else {
-      console.log("❌ 인증 상태 확인 실패")
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Authentication failed",
-        },
-        { status: 401 },
-      )
+      console.log("❌ [STATUS] 인증 실패 - 상태:", backendResponse.status);
+      try {
+        const errorData = await backendResponse.json();
+        console.log("📄 에러 응답 데이터:", errorData);
+        return NextResponse.json(errorData, { status: backendResponse.status });
+      } catch (jsonError) {
+        console.log("💥 에러 응답 JSON 파싱 실패:", jsonError);
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Authentication failed",
+          },
+          { status: backendResponse.status },
+        )
+      }
     }
   } catch (error) {
+    console.log("💥 [STATUS] 에러 발생:", error);
     console.error("❌ 인증 상태 확인 API 오류:", error)
 
-    if (error instanceof Error && error.name === "AbortError") {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Request timeout",
-        },
-        { status: 408 },
-      )
+    if (error instanceof Error) {
+      console.log("🔍 에러 타입:", error.constructor.name);
+      console.log("🔍 에러 메시지:", error.message);
+      
+      if (error.name === "AbortError") {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Request timeout",
+          },
+          { status: 408 },
+        )
+      }
+      
+      if (error.name === "TypeError" && error.message.includes("fetch")) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Backend connection failed",
+          },
+          { status: 503 },
+        )
+      }
     }
 
     return NextResponse.json(
       {
         success: false,
-        message: "Network error",
+        message: "Internal server error",
       },
       { status: 500 },
     )

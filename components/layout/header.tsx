@@ -9,9 +9,6 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { user, isAuthenticated, logout, isLoading } = useAuth()
 
-  // 디버깅을 위한 로깅
-  console.log("🔍 Header 상태:", { user, isAuthenticated, isLoading })
-
   const handleLogout = () => {
     logout()
     setIsMenuOpen(false)

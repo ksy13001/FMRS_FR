@@ -38,15 +38,12 @@ export async function GET(request: NextRequest, { params }: { params: { name: st
     })
 
     if (!response.ok) {
-      console.error(`Backend response error: ${response.status} ${response.statusText}`)
       throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
     }
 
     const data = await response.json()
     return NextResponse.json(data)
   } catch (error) {
-    console.error("Search API error:", error)
-
     if (error instanceof Error) {
       return NextResponse.json(
         {
