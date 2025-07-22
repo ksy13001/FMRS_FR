@@ -37,9 +37,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.removeItem("user");
         }
       }
+      
       // 서버에서 인증 상태 확인 (쿠키 기반)
       const response = await fetch("/api/auth/status", { credentials: "include" });
-      if (!response.ok) {
+      
+      if (response.ok) {
+        // 인증 성공 → user 정보 받아서 상태 복구
+        const data = await response.json();
+        if (data.success && data.dto) {
+          const userData = {
+            id: data.dto.userId,
+            username: data.dto.userName
+          };
+          setUser(userData);
+          localStorage.setItem("user", JSON.stringify(userData));
+        }
+      } else if (response.status === 401) {
+        // 토큰 재발급 시도
+        const refreshResponse = await fetch("/api/auth/reissue", {
+          method: "POST",
+          credentials: "include"
+        });
+        
+        if (refreshResponse.ok) {
+          // 재발급 성공 → 다시 상태 확인
+          await checkAuthStatus();
+        } else {
+          // 재발급 실패 → 로그아웃
+          setUser(null);
+          localStorage.removeItem("user");
+        }
+      } else {
+        // 기타 에러 → 로그아웃
         setUser(null);
         localStorage.removeItem("user");
       }

@@ -47,3 +47,15 @@ export interface TokenValidationResult {
   expiresAt?: Date
   error?: ReissueErrorType
 }
+
+// 백엔드 인증 상태 확인 응답 타입
+export interface UserDetailsDto {
+  userId: number;
+  userName: string;
+}
+
+export interface LoginStatusResponseDto {
+  success: boolean;
+  message: string;
+  dto?: UserDetailsDto;
+}
