@@ -25,49 +25,19 @@ export default function TeamSearchInput({ value, onChange, placeholder = "Search
   const [showDropdown, setShowDropdown] = useState(false)
   const [selectedTeam, setSelectedTeam] = useState<TeamDetailsDto | undefined>(undefined)
   const [hasSearched, setHasSearched] = useState(false) // 검색 실행 여부 추적
-  const [isLoadingTeamInfo, setIsLoadingTeamInfo] = useState(false) // 팀 정보 로딩 상태
 
   const containerRef = useRef<HTMLDivElement>(null)
   const searchTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   // 외부에서 value(teamId)가 변경될 때 처리
   useEffect(() => {
-    if (value && value !== 0) {
-      // teamId가 있고 0이 아니면 해당 팀을 찾아서 설정
-      findTeamById(value)
-    } else if (!value || value === 0) {
+    if (!value || value === 0) {
       setSelectedTeam(undefined)
       setSearchQuery("")
       setHasSearched(false)
     }
+    // teamId가 있으면 이미 선택된 팀이 있으므로 추가 처리 불필요
   }, [value])
-
-  // teamId로 팀 찾기
-  const findTeamById = async (teamId: number) => {
-    setIsLoadingTeamInfo(true)
-    try {
-      console.log(`Finding team by ID: ${teamId}`)
-
-      const response = await fetch(`/api/teams/${teamId}`)
-
-      if (response.ok) {
-        const team: TeamDetailsDto = await response.json()
-        setSelectedTeam(team)
-        setSearchQuery(team.teamName)
-        console.log(`Found team: ${team.teamName}`)
-      } else {
-        console.error("Team not found")
-        setSelectedTeam(undefined)
-        setSearchQuery("")
-      }
-    } catch (error) {
-      console.error("Error finding team by ID:", error)
-      setSelectedTeam(undefined)
-      setSearchQuery("")
-    } finally {
-      setIsLoadingTeamInfo(false)
-    }
-  }
 
   // 외부 클릭 감지
   useEffect(() => {
@@ -203,15 +173,14 @@ export default function TeamSearchInput({ value, onChange, placeholder = "Search
           onChange={handleInputChange}
           onFocus={handleInputFocus}
           placeholder={placeholder}
-          disabled={isLoadingTeamInfo}
-          className={`w-full pl-10 ${selectedTeam || isLoading || isLoadingTeamInfo ? "pr-10" : "pr-3"} py-2 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed`}
+          className={`w-full pl-10 ${selectedTeam || isLoading ? "pr-10" : "pr-3"} py-2 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
         />
-        {(isLoading || isLoadingTeamInfo) && (
+        {isLoading && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
           </div>
         )}
-        {selectedTeam && !isLoading && !isLoadingTeamInfo && (
+        {selectedTeam && !isLoading && (
           <button
             type="button"
             onClick={handleClear}
@@ -235,8 +204,7 @@ export default function TeamSearchInput({ value, onChange, placeholder = "Search
             </div>
           )}
           <div className="text-xs text-green-600 font-medium">
-            Selected: {selectedTeam.teamName} (ID: {selectedTeam.id})
-            {isLoadingTeamInfo && " (Loading...)"}
+            Selected: {selectedTeam.teamName}
           </div>
         </div>
       )}
