@@ -13,8 +13,8 @@ interface TeamDetailsDto {
 }
 
 interface TeamSearchInputProps {
-  value: string | undefined // teamName을 받음
-  onChange: (teamName: string | undefined) => void
+  value: number | undefined // teamId를 받음
+  onChange: (teamId: number | undefined) => void
   placeholder?: string
 }
 
@@ -30,52 +30,40 @@ export default function TeamSearchInput({ value, onChange, placeholder = "Search
   const containerRef = useRef<HTMLDivElement>(null)
   const searchTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  // 외부에서 value(teamName)가 변경될 때 처리
+  // 외부에서 value(teamId)가 변경될 때 처리
   useEffect(() => {
-    if (value && value !== searchQuery) {
-      // teamName이 있고 현재 검색어와 다르면 검색어 업데이트
-      setSearchQuery(value)
-      // 해당 팀명으로 팀을 찾아서 설정
-      findTeamByName(value)
-    } else if (!value) {
+    if (value && value !== 0) {
+      // teamId가 있고 0이 아니면 해당 팀을 찾아서 설정
+      findTeamById(value)
+    } else if (!value || value === 0) {
       setSelectedTeam(undefined)
       setSearchQuery("")
       setHasSearched(false)
     }
   }, [value])
 
-  // teamName으로 팀 찾기
-  const findTeamByName = async (teamName: string) => {
+  // teamId로 팀 찾기
+  const findTeamById = async (teamId: number) => {
     setIsLoadingTeamInfo(true)
     try {
-      console.log(`Finding team by name: ${teamName}`)
+      console.log(`Finding team by ID: ${teamId}`)
 
-      const response = await fetch(`/api/teams?q=${encodeURIComponent(teamName)}`)
+      const response = await fetch(`/api/teams/${teamId}`)
 
       if (response.ok) {
-        const data: TeamDetailsDto[] = await response.json()
-        const exactMatch = data.find((team) => team.teamName === teamName)
-
-        if (exactMatch) {
-          setSelectedTeam(exactMatch)
-          console.log(`Found exact match: ${exactMatch.teamName}`)
-        } else {
-          // 정확한 매치가 없으면 임시로 팀명만 표시
-          setSelectedTeam({
-            id: 0,
-            teamName: teamName,
-            teamLogo: "",
-          })
-        }
+        const team: TeamDetailsDto = await response.json()
+        setSelectedTeam(team)
+        setSearchQuery(team.teamName)
+        console.log(`Found team: ${team.teamName}`)
+      } else {
+        console.error("Team not found")
+        setSelectedTeam(undefined)
+        setSearchQuery("")
       }
     } catch (error) {
-      console.error("Error finding team by name:", error)
-      // 에러 발생 시 임시로 팀명만 표시
-      setSelectedTeam({
-        id: 0,
-        teamName: teamName,
-        teamLogo: "",
-      })
+      console.error("Error finding team by ID:", error)
+      setSelectedTeam(undefined)
+      setSearchQuery("")
     } finally {
       setIsLoadingTeamInfo(false)
     }
@@ -137,7 +125,7 @@ export default function TeamSearchInput({ value, onChange, placeholder = "Search
         setShowDropdown(true)
 
         // 만약 현재 선택된 팀이 임시 팀이고, 검색 결과에 실제 팀 정보가 있다면 업데이트
-        if (selectedTeam && selectedTeam.teamName.startsWith("Team ID:") && value) {
+        if (selectedTeam && selectedTeam.id === 0 && value) {
           const foundTeam = data.find((team) => team.id === value)
           if (foundTeam) {
             setSelectedTeam(foundTeam)
@@ -161,7 +149,7 @@ export default function TeamSearchInput({ value, onChange, placeholder = "Search
   const handleTeamSelect = (team: TeamDetailsDto) => {
     setSelectedTeam(team)
     setSearchQuery(team.teamName)
-    onChange(team.teamName) // teamName 전달
+    onChange(team.id) // teamId 전달
     setShowDropdown(false)
   }
 
@@ -247,7 +235,7 @@ export default function TeamSearchInput({ value, onChange, placeholder = "Search
             </div>
           )}
           <div className="text-xs text-green-600 font-medium">
-            Selected: {selectedTeam.teamName}
+            Selected: {selectedTeam.teamName} (ID: {selectedTeam.id})
             {isLoadingTeamInfo && " (Loading...)"}
           </div>
         </div>

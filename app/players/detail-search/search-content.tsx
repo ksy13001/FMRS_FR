@@ -15,7 +15,7 @@ interface SearchCondition {
   ageMin?: number
   ageMax?: number
   nationName?: string
-  teamName?: string // teamId 대신 teamName 사용
+  teamId?: number // teamName 대신 teamId 사용
   // Technical attributes
   corners?: number
   crossing?: number
@@ -232,6 +232,7 @@ export default function PlayerDetailSearchContent() {
   const numericFields = [
     "ageMin",
     "ageMax",
+    "teamId",
     "corners",
     "crossing",
     "dribbling",
@@ -583,8 +584,8 @@ export default function PlayerDetailSearchContent() {
                     {/* 팀 검색 - teamId 전달 */}
                     <div>
                       <TeamSearchInput
-                        value={searchCondition.teamName}
-                        onChange={(teamName) => handleConditionChange("teamName", teamName)}
+                        value={searchCondition.teamId}
+                        onChange={(teamId) => handleConditionChange("teamId", teamId)}
                         placeholder="Search teams (min 2 characters)..."
                       />
                     </div>
