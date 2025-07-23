@@ -39,16 +39,24 @@ export default function LoginContent() {
   const validateForm = (): boolean => {
     const newErrors: Partial<LoginFormData> = {}
 
-    if (!formData.username) {
-      newErrors.username = "Please enter your username"
-    } else if (formData.username.length < 2) {
-      newErrors.username = "Username must be at least 2 characters"
+    // Username validation - matches backend: 2-20 characters, letters/numbers/dash/underscore/apostrophe/period
+    if (!formData.username.trim()) {
+      newErrors.username = "Username is required"
+    } else if (!formData.username.match(/^[a-zA-Z0-9\-_'.]{2,20}$/)) {
+      newErrors.username = "Username must be 2-20 characters and contain only letters, numbers, dash, underscore, apostrophe, or period"
     }
 
+    // Password validation - matches backend: 8-64 characters, must contain letter + number + special character
     if (!formData.password) {
-      newErrors.password = "Please enter your password"
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters"
+      newErrors.password = "Password is required"
+    } else if (formData.password.length < 8 || formData.password.length > 64) {
+      newErrors.password = "Password must be 8-64 characters"
+    } else if (
+      !/^(?=.*[A-Za-z])(?=.*\d)(?=.*[\x21-\x2F\x3A-\x40\x5B-\x60\x7B-\x7E])[A-Za-z\d\x21-\x2F\x3A-\x40\x5B-\x60\x7B-\x7E]{8,64}$/.test(
+        formData.password,
+      )
+    ) {
+      newErrors.password = "Password must contain at least one letter, one number, and one special character"
     }
 
     setErrors(newErrors)

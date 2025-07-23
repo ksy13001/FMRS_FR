@@ -32,11 +32,11 @@ export default function SignupContent() {
   const [apiError, setApiError] = useState<string>("")
   const [successMessage, setSuccessMessage] = useState<string>("")
 
-  // 폼 유효성 검사
+  // Form validation
   const validateForm = (): boolean => {
     const newErrors: Partial<SignupForm> = {}
 
-    // Username 검사 - 백엔드와 일치: 2~20글자, 영문/숫자/대시/언더스코어/아포스트로피/마침표
+    // Username validation - matches backend: 2-20 characters, letters/numbers/dash/underscore/apostrophe/period
     if (!formData.username.trim()) {
       newErrors.username = "Username is required"
     } else if (!formData.username.match(/^[a-zA-Z0-9\-_'.]{2,20}$/)) {
@@ -44,7 +44,7 @@ export default function SignupContent() {
         "Username must be 2-20 characters and contain only letters, numbers, dash, underscore, apostrophe, or period"
     }
 
-    // Password 검사 - 백엔드와 일치: 8~64글자, 영문+숫자+특수문자 포함
+    // Password validation - matches backend: 8-64 characters, must contain letter + number + special character
     if (!formData.password) {
       newErrors.password = "Password is required"
     } else if (formData.password.length < 8 || formData.password.length > 64) {
@@ -57,7 +57,7 @@ export default function SignupContent() {
       newErrors.password = "Password must contain at least one letter, one number, and one special character"
     }
 
-    // Confirm Password 검사
+    // Confirm Password validation
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = "Please confirm your password"
     } else if (formData.password !== formData.confirmPassword) {
@@ -80,7 +80,7 @@ export default function SignupContent() {
     }
   }
 
-  // 🔧 수정: 자동 로그인 함수 - 사용자 정보만 반환
+  // Auto login function - returns user info only
   const performAutoLogin = async (username: string, password: string): Promise<boolean> => {
     try {
       const loginResponse = await fetch("/api/auth/login", {
@@ -96,19 +96,18 @@ export default function SignupContent() {
       })
 
       const loginData: LoginResponse = await loginResponse.json()
-      console.log("🔐 자동 로그인 응답:", loginData)
+      console.log("🔐 Auto login response:", loginData)
 
       if (loginResponse.ok && loginData.success && loginData.user) {
-        // 🔧 수정: login 함수에 사용자 정보만 전달
-        console.log("✅ 자동 로그인 성공 - AuthProvider에 저장")
-        login(loginData.user) // 🔧 수정: 1개 인수만 전달
+        console.log("✅ Auto login successful - stored in AuthProvider")
+        login(loginData.user)
         return true
       }
 
-      console.log("❌ 자동 로그인 실패:", loginData.message)
+      console.log("❌ Auto login failed:", loginData.message)
       return false
     } catch (error) {
-      console.error("❌ 자동 로그인 오류:", error)
+      console.error("❌ Auto login error:", error)
       return false
     }
   }
@@ -146,20 +145,18 @@ export default function SignupContent() {
         const loginSuccess = await performAutoLogin(formData.username, formData.password)
 
         if (loginSuccess) {
-          // 🔧 수정: 즉시 리다이렉트 (setTimeout 제거)
-          console.log("🏠 홈페이지로 리다이렉트")
+          console.log("🏠 Redirecting to homepage")
           router.push("/")
         } else {
-          // 로그인 실패 시 로그인 페이지로 리다이렉트
+          // Redirect to login page if auto-login fails
           setSuccessMessage("Account created! Please log in.")
-          // 🔧 수정: 즉시 리다이렉트 (setTimeout 제거)
           router.push("/auth/login")
         }
       } else {
         setApiError(signupData.message || "Failed to create account. Please try again.")
       }
     } catch (error) {
-      console.error("회원가입 오류:", error)
+      console.error("Signup error:", error)
       setApiError("Network error. Please check your connection and try again.")
     } finally {
       setIsLoading(false)
