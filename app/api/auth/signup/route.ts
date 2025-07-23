@@ -15,7 +15,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body: SignupRequestDto = await request.json()
 
-    // 입력 데이터 검증
+    // Input validation
     if (!body.username || !body.password) {
       return NextResponse.json(
         {
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    // 기본 유효성 검사
+    // Username validation - matches backend: 2-20 characters, letters/numbers/dash/underscore/apostrophe/period
     if (!body.username.match(/^[a-zA-Z0-9\-_'.]{2,20}$/)) {
       return NextResponse.json(
         {
@@ -38,6 +38,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
+    // Password validation - matches backend: 8-64 characters, must contain letter + number + special character
     if (body.password.length < 8 || body.password.length > 64) {
       return NextResponse.json(
         {
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const backendUrl = process.env.BACKEND_URL || "http://localhost:8080"
     const apiUrl = new URL("/api/auth/signup", backendUrl)
 
-    console.log(`백엔드 회원가입 호출: ${apiUrl.toString()}`)
+    console.log(`Backend signup call: ${apiUrl.toString()}`)
 
     const response = await fetch(apiUrl.toString(), {
       method: "POST",
@@ -79,12 +80,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       signal: AbortSignal.timeout(10000),
     })
 
-    console.log(`백엔드 응답 상태: ${response.status}`)
-    console.log(`백엔드 응답 헤더:`, Object.fromEntries(response.headers.entries()))
+    console.log(`Backend response status: ${response.status}`)
+    console.log(`Backend response headers:`, Object.fromEntries(response.headers.entries()))
 
-    // 응답 텍스트를 먼저 읽어서 로깅
+    // Read response text first for logging
     const responseText = await response.text()
-    console.log(`백엔드 응답 본문:`, responseText)
+    console.log(`Backend response body:`, responseText)
 
     if (!response.ok) {
       let errorMessage = "Failed to create account"
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const errorData = JSON.parse(responseText)
         errorMessage = errorData.message || errorMessage
       } catch {
-        console.log("JSON 파싱 실패 - 에러 응답")
+        console.log("JSON parsing failed - error response")
         errorMessage = responseText || errorMessage
       }
 
@@ -106,14 +107,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    // 성공 응답 처리 - 이제 항상 JSON이 있음
+    // Success response processing - now always has JSON
     let data: SignupResponse
 
     try {
       data = JSON.parse(responseText)
     } catch {
-      console.log("JSON 파싱 실패 - 성공 응답")
-      // 파싱 실패 시 기본값 사용
+      console.log("JSON parsing failed - success response")
+      // Use default value if parsing fails
       data = {
         success: true,
         message: "Account created successfully!",
@@ -126,7 +127,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       userId: data.userId,
     })
   } catch (error) {
-    console.error("회원가입 API 오류:", error)
+    console.error("Signup API error:", error)
 
     if (error instanceof Error) {
       return NextResponse.json(
@@ -143,7 +144,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(
       {
         success: false,
-        message: "회원가입 처리 중 오류가 발생했습니다",
+        message: "An error occurred during signup process",
       },
       { status: 500 },
     )

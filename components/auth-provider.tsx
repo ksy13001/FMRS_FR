@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState, useRef } from "react"
 import type { User } from "@/types/auth-types"
 import { apiClient } from "@/lib/api-client"
 
@@ -18,11 +18,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const isCheckingAuth = useRef(false)
 
   const isAuthenticated = !!user;
 
   useEffect(() => {
-    checkAuthStatus();
+    if (!isCheckingAuth.current) {
+      isCheckingAuth.current = true;
+      checkAuthStatus();
+    }
   }, []);
 
   const checkAuthStatus = async () => {
@@ -61,8 +65,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
         
         if (refreshResponse.ok) {
-          // 재발급 성공 → 바로 상태 확인 (재귀 호출 제거)
-          console.log("✅ 토큰 재발급 성공, 상태 재확인");
+          // 재발급 성공 → localStorage의 기존 user 정보로 복구
+          console.log("✅ 토큰 재발급 성공, 기존 user 정보로 복구");
+          
+          // localStorage에서 기존 user 정보 확인
+          const storedUser = localStorage.getItem("user");
+          if (storedUser) {
+            try {
+              const userData = JSON.parse(storedUser);
+              setUser(userData);
+              console.log("✅ 기존 user 정보로 로그인 상태 복구 완료");
+              return; // status 재확인 생략
+            } catch (error) {
+              console.log("⚠️ 기존 user 정보 파싱 실패");
+            }
+          }
+          
+          // 기존 user 정보가 없으면 status 재확인
+          console.log("⚠️ 기존 user 정보 없음, status 재확인");
           const statusResponse = await fetch("/api/auth/status", { credentials: "include" });
           
           if (statusResponse.ok) {
@@ -81,9 +101,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser(null);
             localStorage.removeItem("user");
           }
+        } else if (refreshResponse.status === 401) {
+          // Refresh Token도 만료 → 즉시 로그아웃
+          console.log("❌ Refresh Token 만료, 즉시 로그아웃");
+          setUser(null);
+          localStorage.removeItem("user");
         } else {
-          // 재발급 실패 → 로그아웃
-          console.log("❌ 토큰 재발급 실패");
+          // 기타 재발급 실패 → 로그아웃
+          console.log("❌ 토큰 재발급 실패 - 상태:", refreshResponse.status);
+          try {
+            const errorData = await refreshResponse.json();
+            console.log("❌ 재발급 실패 상세:", errorData);
+          } catch (e) {
+            console.log("❌ 재발급 실패 응답 파싱 불가");
+          }
           setUser(null);
           localStorage.removeItem("user");
         }
@@ -99,6 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem("user");
     } finally {
       setIsLoading(false);
+      isCheckingAuth.current = false;
     }
   };
 
