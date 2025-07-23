@@ -35,9 +35,46 @@ export default function TeamSearchInput({ value, onChange, placeholder = "Search
       setSelectedTeam(undefined)
       setSearchQuery("")
       setHasSearched(false)
+    } else if (value && (!selectedTeam || selectedTeam.id !== value)) {
+      // teamId가 있고, 선택된 팀이 없거나 다른 팀이 선택된 경우 해당 팀 정보 가져오기
+      findTeamById(value)
     }
-    // teamId가 있으면 이미 선택된 팀이 있으므로 추가 처리 불필요
-  }, [value])
+  }, [value, selectedTeam])
+
+  // teamId로 팀 정보 가져오기
+  const findTeamById = async (teamId: number) => {
+    try {
+      console.log(`Finding team by ID: ${teamId}`)
+      
+      // teamId로 직접 팀 정보 요청
+      const response = await fetch(`/api/teams/${teamId}`)
+      
+      if (response.ok) {
+        const team: TeamDetailsDto = await response.json()
+        setSelectedTeam(team)
+        setSearchQuery(team.teamName)
+        console.log(`Found team: ${team.teamName}`)
+      } else {
+        console.error("Team not found")
+        // 팀을 찾을 수 없는 경우 임시 팀 객체 생성
+        setSelectedTeam({
+          id: teamId,
+          teamName: `Team ID: ${teamId}`,
+          teamLogo: "",
+        })
+        setSearchQuery(`Team ID: ${teamId}`)
+      }
+    } catch (error) {
+      console.error("Error finding team by ID:", error)
+      // 에러 발생 시에도 임시 팀 객체 생성
+      setSelectedTeam({
+        id: teamId,
+        teamName: `Team ID: ${teamId}`,
+        teamLogo: "",
+      })
+      setSearchQuery(`Team ID: ${teamId}`)
+    }
+  }
 
   // 외부 클릭 감지
   useEffect(() => {
