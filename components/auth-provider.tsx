@@ -53,26 +53,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.setItem("user", JSON.stringify(userData));
         }
       } else if (response.status === 401) {
-        // 토큰 재발급 시도
+        // 토큰 재발급 시도 (한 번만)
+        console.log("🔄 토큰 재발급 시도...");
         const refreshResponse = await fetch("/api/auth/reissue", {
           method: "POST",
           credentials: "include"
         });
         
         if (refreshResponse.ok) {
-          // 재발급 성공 → 다시 상태 확인
-          await checkAuthStatus();
+          // 재발급 성공 → 바로 상태 확인 (재귀 호출 제거)
+          console.log("✅ 토큰 재발급 성공, 상태 재확인");
+          const statusResponse = await fetch("/api/auth/status", { credentials: "include" });
+          
+          if (statusResponse.ok) {
+            const data = await statusResponse.json();
+            if (data.success && data.dto) {
+              const userData = {
+                id: data.dto.userId,
+                username: data.dto.userName
+              };
+              setUser(userData);
+              localStorage.setItem("user", JSON.stringify(userData));
+            }
+          } else {
+            // 재발급 후에도 실패 → 로그아웃
+            console.log("❌ 토큰 재발급 후에도 인증 실패");
+            setUser(null);
+            localStorage.removeItem("user");
+          }
         } else {
           // 재발급 실패 → 로그아웃
+          console.log("❌ 토큰 재발급 실패");
           setUser(null);
           localStorage.removeItem("user");
         }
       } else {
         // 기타 에러 → 로그아웃
+        console.log("❌ 인증 상태 확인 실패:", response.status);
         setUser(null);
         localStorage.removeItem("user");
       }
-    } catch {
+    } catch (error) {
+      console.log("💥 인증 상태 확인 중 에러:", error);
       setUser(null);
       localStorage.removeItem("user");
     } finally {
