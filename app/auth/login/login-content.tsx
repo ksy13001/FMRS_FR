@@ -1,8 +1,8 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -32,9 +32,28 @@ export default function LoginContent() {
   const [errors, setErrors] = useState<Partial<LoginFormData>>({})
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  const [redirectUrl, setRedirectUrl] = useState<string>("/")
 
   const { login } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // URL 파라미터에서 redirect URL 가져오기
+  useEffect(() => {
+    const redirect = searchParams.get('redirect')
+    if (redirect) {
+      // URL 디코딩 및 유효성 검사
+      try {
+        const decodedRedirect = decodeURIComponent(redirect)
+        // 상대 경로인지 확인 (보안을 위해)
+        if (decodedRedirect.startsWith('/') && !decodedRedirect.includes('..')) {
+          setRedirectUrl(decodedRedirect)
+        }
+      } catch (error) {
+        console.warn('Invalid redirect URL:', redirect)
+      }
+    }
+  }, [searchParams])
 
   const validateForm = (): boolean => {
     const newErrors: Partial<LoginFormData> = {}
@@ -106,7 +125,8 @@ export default function LoginContent() {
         setMessage({ type: "success", text: data.message });
         if (data.user) {
           login(data.user);
-          router.push("/");
+          // 원래 페이지로 리다이렉션
+          router.push(redirectUrl);
         } else {
           setMessage({ type: "error", text: "Login response incomplete" });
         }
