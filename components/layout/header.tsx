@@ -54,7 +54,7 @@ export default function Header() {
               // 로그인되지 않은 사용자
               <>
                 <Link
-                  href="/auth/login"
+                  href={`/auth/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`}
                   className="inline-flex items-center px-3 py-2 text-sm text-slate-600 hover:text-blue-600 transition duration-300"
                 >
                   Login
@@ -117,7 +117,7 @@ export default function Header() {
                   // 모바일 - 로그인되지 않은 사용자
                   <>
                     <Link
-                      href="/auth/login"
+                      href={`/auth/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`}
                       className="block py-3 text-slate-600 hover:text-blue-600 transition duration-300"
                       onClick={() => setIsMenuOpen(false)}
                     >

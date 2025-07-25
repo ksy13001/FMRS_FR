@@ -34,7 +34,8 @@ export default function CommentForm({ playerId, onSubmit, isLoading = false }: C
   }
 
   const handleLoginClick = () => {
-    window.location.href = "/auth/login"
+    const currentPath = window.location.pathname + window.location.search
+    window.location.href = `/auth/login?redirect=${encodeURIComponent(currentPath)}`
   }
 
   if (!isAuthenticated) {
