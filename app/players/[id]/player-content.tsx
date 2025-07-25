@@ -26,6 +26,7 @@ import {
 import Header from "@/components/layout/header"
 import ImageWithFallback from "@/components/image-with-fallback"
 import Footer from "@/components/layout/footer"
+import PlayerComments from "@/components/player-comments"
 
 interface PlayerPosition {
   goalkeeper: number
@@ -830,6 +831,13 @@ export default function PlayerDetailContent() {
                 </p>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* 댓글 섹션 */}
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-6">
+          <div className="p-3">
+            <PlayerComments playerId={player.playerDetailsDto.id} />
           </div>
         </div>
       </main>
